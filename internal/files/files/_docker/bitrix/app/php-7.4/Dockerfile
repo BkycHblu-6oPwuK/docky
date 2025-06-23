@@ -41,10 +41,10 @@ RUN update-ca-certificates && \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm && \
     docker-php-ext-install pdo_mysql mysqli bcmath gd zip
 
-RUN pecl install memcache && docker-php-ext-enable memcache
+RUN pecl install memcache-4.0.5.2 && docker-php-ext-enable memcache
 
 RUN pecl install igbinary && \
-    pecl install -D 'enable-redis-igbinary="yes"' redis && \
+    pecl install -D 'enable-redis-igbinary="yes"' redis-5.3.7 && \
     docker-php-ext-enable igbinary redis
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
