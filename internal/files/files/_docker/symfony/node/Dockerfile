@@ -1,4 +1,4 @@
-FROM debian:12-slim
+FROM ubuntu:22.04
 
 ARG NODE_VERSION=23
 ARG USERGROUP
