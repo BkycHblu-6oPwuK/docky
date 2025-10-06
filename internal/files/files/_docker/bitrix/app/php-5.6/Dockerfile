@@ -37,7 +37,8 @@ RUN apt-get install -y --allow-unauthenticated \
     cron \
     supervisor \
     libmagickwand-dev imagemagick \
-    gifsicle
+    gifsicle \
+    git
 
 RUN update-ca-certificates && \
     pecl install imagick-3.4.4 && \

@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.1-fpm
 
 ARG USERGROUP
 ENV SUPERVISOR_PHP_USER="docky"
@@ -36,16 +36,16 @@ RUN apt-get install -y \
     
 RUN update-ca-certificates && \
     pecl install imagick && \
-    pecl install xdebug-3.1.6 && \
+    pecl install xdebug && \
     docker-php-ext-enable imagick && \
     docker-php-ext-enable xdebug && \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm && \
     docker-php-ext-install pdo_mysql mysqli bcmath gd zip
 
-RUN pecl install memcache-4.0.5.2 && docker-php-ext-enable memcache
+RUN pecl install memcache && docker-php-ext-enable memcache
 
 RUN pecl install igbinary && \
-    pecl install -D 'enable-redis-igbinary="yes"' redis-5.3.7 && \
+    pecl install -D 'enable-redis-igbinary="yes"' redis && \
     docker-php-ext-enable igbinary redis
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -72,8 +72,8 @@ COPY bin/create_simlink.sh /usr/local/bin/create_simlink.sh
 RUN sed -i 's/\r$//' /usr/local/bin/create_simlink.sh && \
     chmod +x /usr/local/bin/create_simlink.sh
 
-COPY app/php-7.4/php.ini /usr/local/etc/php/conf.d/php.ini
-COPY app/php-7.4/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY app/php-8.2/php.ini /usr/local/etc/php/conf.d/php.ini
+COPY app/php-8.2/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 COPY app/php-fpm.conf /usr/local/etc/php-fpm.d/zzzzwww.conf
 COPY app/nginx /etc/nginx/conf.d
 

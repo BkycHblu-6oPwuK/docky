@@ -31,7 +31,8 @@ RUN apt-get install -y \
     cron \
     supervisor \
     libmagickwand-dev imagemagick \
-    gifsicle
+    gifsicle \
+    git
     
 RUN update-ca-certificates && \
     pecl install imagick && \
