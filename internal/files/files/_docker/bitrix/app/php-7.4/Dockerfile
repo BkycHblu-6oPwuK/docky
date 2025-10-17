@@ -1,5 +1,12 @@
 FROM php:7.4-fpm
 
+RUN sed -i 's|deb.debian.org|archive.debian.org|g' /etc/apt/sources.list && \
+    sed -i '/security.debian.org/d' /etc/apt/sources.list && \
+    sed -i '/bullseye-security/d' /etc/apt/sources.list && \
+    echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until && \
+    echo 'Acquire::AllowInsecureRepositories "true";' >> /etc/apt/apt.conf.d/99no-check-valid-until && \
+    apt-get update
+
 ARG USERGROUP
 ENV SUPERVISOR_PHP_USER="docky"
 
@@ -8,7 +15,7 @@ RUN useradd -ms /bin/bash --no-user-group -g $USERGROUP -u $USERGROUP docky
 
 COPY nginx/certs/ /usr/local/share/ca-certificates/
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --allow-unauthenticated \
     apt-utils \
     libpq-dev \
     libpng-dev \
@@ -20,7 +27,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip
 
-RUN apt-get install -y \ 
+RUN apt-get install -y --allow-unauthenticated \
     jpegoptim \
     optipng \
     ghostscript \
