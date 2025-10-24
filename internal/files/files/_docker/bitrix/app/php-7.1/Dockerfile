@@ -79,8 +79,8 @@ COPY bin/create_simlink.sh /usr/local/bin/create_simlink.sh
 RUN sed -i 's/\r$//' /usr/local/bin/create_simlink.sh && \
     chmod +x /usr/local/bin/create_simlink.sh
 
-COPY app/php-7.4/php.ini /usr/local/etc/php/conf.d/php.ini
-COPY app/php-7.4/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY app/php-7.1/php.ini /usr/local/etc/php/conf.d/php.ini
+COPY app/php-7.1/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 COPY app/php-fpm.conf /usr/local/etc/php-fpm.d/zzzzwww.conf
 COPY app/nginx /etc/nginx/conf.d
 
