@@ -7,6 +7,8 @@
 - Под Symfony смотрите в [symfony.md](docs/symfony.md)
 - Под ванильный php смотрите в [vanilla.md](docs/vanilla.md)
 
+Расширение для VS Code для запуска/остановки, мониторинга контейнеров (форк расширения Container Tools - https://github.com/microsoft/vscode-containers) - https://github.com/BkycHblu-6oPwuK/vscode-containers-docky?tab=readme-ov-file
+
 А здесь общее описания работы с скриптом ```docky```
 
 ## Установка
