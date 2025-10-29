@@ -129,6 +129,29 @@ func PublishFile(file string) error {
 	}
 }
 
+func PublishExample(framework framework.Framework) error {
+    examplesCachePath := config.GetExamplesCachePath()
+    siteDirPath := config.GetSiteDirPath()
+    if exists, _ := filetools.FileIsExists(examplesCachePath); !exists {
+        return fmt.Errorf("директория с примерами не найдена: %s", examplesCachePath)
+    }
+    
+    frameworkExamplesPath := filepath.Join(examplesCachePath, framework.String())
+    if exists, _ := filetools.FileIsExists(frameworkExamplesPath); !exists {
+        return fmt.Errorf("примеры для фреймворка %s не найдены в %s", framework, frameworkExamplesPath)
+    }
+    
+    fmt.Printf("Копируем примеры для %s из %s в %s...\n", framework, frameworkExamplesPath, siteDirPath)
+    
+    err := filetools.CopyDir(frameworkExamplesPath, siteDirPath)
+    if err != nil {
+        return fmt.Errorf("ошибка копирования примеров: %w", err)
+    }
+    
+    fmt.Printf("Примеры для фреймворка %s успешно опубликованы в %s\n", framework, siteDirPath)
+    return nil
+}
+
 func PublishService(service string) error {
 	switch service {
 	case composefiletools.Node:

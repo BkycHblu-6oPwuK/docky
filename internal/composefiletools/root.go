@@ -47,7 +47,7 @@ func GetAvailableVersions(service string, yamlConfig *config.YamlConfig) []strin
 	switch service {
 	case App:
 		switch yamlConfig.FrameworkName {
-		case framework.Laravel, framework.Symfony, framework.Vanilla:
+		case framework.BitrixNuxt, framework.Laravel, framework.Symfony, framework.Vanilla:
 			return []string{"8.2", "8.3", "8.4"}
 		default:
 			return []string{"5.6", "7.1", "7.4", "8.1", "8.2", "8.3", "8.4"}

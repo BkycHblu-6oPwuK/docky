@@ -13,7 +13,7 @@ import (
 
 const (
 	ScriptName            string = "docky"
-	ScriptVersion         string = "2.2.22"
+	ScriptVersion         string = "2.2.23"
 	SiteDirName           string = "site"
 	DockerFilesDirName    string = "_docker"
 	ConfFilesDirName      string = "_conf"
@@ -87,6 +87,10 @@ func GetDockerFilesDirPath() string {
 
 func GetDockerFilesDirPathInCache() string {
 	return filepath.Join(GetScriptCacheDir(), DockerFilesDirName, GetCurFramework().String())
+}
+
+func GetExamplesCachePath() string {
+	return filepath.Join(GetScriptCacheDir(), "examples")
 }
 
 func GetCurrentDockerFileDirPath() string {

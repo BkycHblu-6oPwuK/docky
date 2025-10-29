@@ -9,6 +9,7 @@ import (
 	"github.com/BkycHblu-6oPwuK/docky/v2/internal/config"
 	"github.com/BkycHblu-6oPwuK/docky/v2/internal/config/framework"
 	"github.com/BkycHblu-6oPwuK/docky/v2/internal/globaltools"
+	"github.com/BkycHblu-6oPwuK/docky/v2/internal/publishtools"
 	"github.com/BkycHblu-6oPwuK/docky/v2/pkg/filetools"
 	"github.com/BkycHblu-6oPwuK/docky/v2/pkg/readertools"
 )
@@ -31,6 +32,8 @@ func InitDockerComposeFile() error {
 		initVanillaConfig(yamlConfig)
 	case framework.Symfony:
 		initSymfonyConfig(yamlConfig)
+	case framework.BitrixNuxt:
+		initBitrixNuxt(yamlConfig)
 	default:
 		initDefaultConfig(yamlConfig)
 	}
@@ -87,6 +90,40 @@ func InitSymfony() error {
 	}
 
 	if err := installSymfonyProject(); err != nil {
+		return err
+	}
+
+	globaltools.DownContainers()
+	return nil
+}
+
+func initBitrixNuxt(yamlConfig *config.YamlConfig) {
+	yamlConfig.DbType = composefiletools.Mysql
+	if yamlConfig.MysqlVersion == "" {
+		yamlConfig.MysqlVersion = readertools.GetOrChoose("Выберите версию mysql: ", yamlConfig.MysqlVersion, composefiletools.GetAvailableVersions(composefiletools.Mysql, yamlConfig))
+	}
+
+	yamlConfig.CreateNode = true
+	yamlConfig.NodePath = "/var/www/nuxt"
+	globaltools.InitNode(yamlConfig)
+	yamlConfig.CreateSphinx = readertools.AskYesNo("Добавлять sphinx?")
+	errorS := publishtools.PublishExample(framework.BitrixNuxt)
+	fmt.Println(errorS)
+}
+
+func InitBitrixNuxt() error {
+	siteDir := config.GetSiteDirPath()
+
+	if !filetools.IsDirEmpty(siteDir) {
+		if !readertools.AskYesNo("Директория с сайтом не пуста. Удалить всё и установить Bitrix + Nuxt?") {
+			return nil
+		}
+		if err := recreateDir(siteDir); err != nil {
+			return err
+		}
+	}
+
+	if err := globaltools.ExecDockerCompose([]string{"build", composefiletools.App}); err != nil {
 		return err
 	}
 

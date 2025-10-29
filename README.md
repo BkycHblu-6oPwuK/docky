@@ -3,6 +3,7 @@
 Настроенная обертка над docker compose для локальных проектов Bitrix, Laravel.
 
 - Под Bitrix смотрите в [bitrix.md](docs/bitrix.md)
+- Под Bitrix вместе с nuxt смотрите в [bitrix.md](docs/bitrix_nuxt.md)
 - Под Laravel смотрите в [laravel.md](docs/laravel.md)
 - Под Symfony смотрите в [symfony.md](docs/symfony.md)
 - Под ванильный php смотрите в [vanilla.md](docs/vanilla.md)

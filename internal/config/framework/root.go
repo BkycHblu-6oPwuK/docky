@@ -3,15 +3,17 @@ package framework
 type Framework string
 
 const (
-	Bitrix  Framework = "bitrix"
-	Laravel Framework = "laravel"
-	Symfony Framework = "symfony"
-	Vanilla Framework = "vanilla"
+	Bitrix     Framework = "bitrix"
+	BitrixNuxt Framework = "bitrix_nuxt"
+	Laravel    Framework = "laravel"
+	Symfony    Framework = "symfony"
+	Vanilla    Framework = "vanilla"
 )
 
 func GetAll() []Framework {
 	return []Framework{
 		Bitrix,
+		BitrixNuxt,
 		Laravel,
 		Symfony,
 		Vanilla,
@@ -27,10 +29,12 @@ func GetAllStrings() []string {
 	return strs
 }
 
-func ParseFramework(s string) (Framework) {
+func ParseFramework(s string) Framework {
 	switch s {
 	case Bitrix.String():
 		return Bitrix
+	case BitrixNuxt.String():
+		return BitrixNuxt
 	case Laravel.String():
 		return Laravel
 	case Symfony.String():
