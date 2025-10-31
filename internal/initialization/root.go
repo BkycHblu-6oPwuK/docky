@@ -230,8 +230,11 @@ func installSymfonyProject() error {
 
 	args := []string{
 		"run", "--rm",
-		"--user", "docky", "--entrypoint", "composer",
-		composefiletools.App, "create-project", "symfony/skeleton", ".",
+		"--user", "docky",
+		"-e", "XDEBUG_MODE=off",
+		"--entrypoint", "composer",
+		composefiletools.App,
+		"create-project", "symfony/skeleton", ".",
 	}
 
 	if err := globaltools.ExecDockerCompose(args); err != nil {
@@ -241,7 +244,7 @@ func installSymfonyProject() error {
 	if !isCli {
 		if err := globaltools.ExecDockerCompose([]string{
 			"run", "--rm",
-			"--user", "docky", "--entrypoint", "composer",
+			"--user", "docky", "-e", "XDEBUG_MODE=off", "--entrypoint", "composer",
 			composefiletools.App, "require", "webapp",
 		}); err != nil {
 			return err

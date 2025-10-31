@@ -30,7 +30,7 @@ func init() {
 func execComposerInContainer(args []string) error {
 	execArgs := append([]string{
 		"exec", "-it",
-		"--user", "docky",
+		"--user", "docky", "-e", "XDEBUG_MODE=off",
 		composefiletools.App, "composer",
 	}, args...)
 

@@ -52,6 +52,9 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN curl -sS https://getcomposer.org/installer | php -- \
     --filename=composer \
     --install-dir=/usr/local/bin
+RUN echo "alias composer='XDEBUG_MODE=off composer'" >> /etc/bash.bashrc \
+ && echo "alias composer='XDEBUG_MODE=off composer'" >> /home/docky/.bashrc \
+ && chown docky:docky /home/docky/.bashrc
 
 COPY app/msmtprc /home/docky/.msmtprc
 RUN chmod 600 /home/docky/.msmtprc

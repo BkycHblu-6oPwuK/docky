@@ -37,7 +37,8 @@ RUN apt-get install -y \
     libxml2-dev \
     libonig-dev \
     libsqlite3-dev \
-    libpq-dev
+    libpq-dev \
+    git
 
 RUN update-ca-certificates
 
@@ -65,6 +66,9 @@ RUN pecl install memcached && docker-php-ext-enable memcached
 RUN pecl install igbinary \
     && pecl install -D 'enable-redis-igbinary="yes"' redis \
     && docker-php-ext-enable igbinary redis
+RUN echo "alias composer='XDEBUG_MODE=off composer'" >> /etc/bash.bashrc \
+ && echo "alias composer='XDEBUG_MODE=off composer'" >> /home/docky/.bashrc \
+ && chown docky:docky /home/docky/.bashrc
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
