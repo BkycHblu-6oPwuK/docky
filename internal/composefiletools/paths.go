@@ -22,6 +22,10 @@ func GetNginxConfVolumePath(toEndJoin string) string {
 	return hostPath + ":" + containerPath
 }
 
+func GetNginxConfFileVolumePath() string {
+	return GetNginxComposePath("nginx.conf", true) + ":/etc/nginx/nginx.conf"
+}
+
 func GetAppNginxConfVolumePath(toEndJoin string) string {
 	hostPath := getBaseConfComposePath(true) + "/" + App + "/" + Nginx
 	containerPath := GetNginxConfPathInContainer()

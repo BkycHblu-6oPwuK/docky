@@ -7,6 +7,7 @@ RUN groupadd --force -g $USERGROUP docky && \
 
 COPY nginx/certs/ /usr/local/share/ca-certificates/
 COPY nginx/conf.d /etc/nginx/conf.d
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
 RUN apt-get update && apt-get install -y \
     ca-certificates \

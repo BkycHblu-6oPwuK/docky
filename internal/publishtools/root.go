@@ -67,14 +67,21 @@ func PublishFile(file string) error {
 			return fmt.Errorf("для вашего фреймворка cron не предустановлен: %s", curFramework)
 		}
 	case "nginx_conf":
+		pathToConfFile := filepath.Join(composefiletools.Nginx, "nginx.conf")
 		pathToConf := filepath.Join(composefiletools.Nginx, "conf.d")
-		filePath := filepath.Join(config.DockerFilesDirName, config.GetCurFramework().String(), pathToConf)
+		pathToDocker := filepath.Join(config.DockerFilesDirName, config.GetCurFramework().String())
+		filePath := filepath.Join(pathToDocker, pathToConf)
+		fileConfPath := filepath.Join(pathToDocker, pathToConfFile)
 		if err := files.PublishFile(filePath, filepath.Join(config.GetConfFilesDirPath(), pathToConf), true); err != nil {
+			return err
+		}
+		if err := files.PublishFile(fileConfPath, filepath.Join(config.GetConfFilesDirPath(), pathToConfFile), true); err != nil {
 			return err
 		}
 		return composefiletools.PublishVolumes(map[string][]string{
 			composefiletools.Nginx: {
 				composefiletools.GetNginxConfVolumePath(""),
+				composefiletools.GetNginxConfFileVolumePath(),
 			},
 		}, func(b *service.ServiceBuilder) (isContinue bool, err error) {
 			b.FilterVolumes(func(volume string) bool {
