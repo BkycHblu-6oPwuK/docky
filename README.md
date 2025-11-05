@@ -124,6 +124,8 @@ docky publish --service node|mysql|mariadb|postgres|sphinx|redis|memcached|mailh
 
 для работы сокетов на локальном сайте в php контейнере так же устанавливается nginx который проксирует запросы на основной контейнер с nginx.
 
+при проксировании на контейнер nginx можно передать заголовок `x-forwarded-host` чтобы сервер для php установил указанный в заголовках host.
+
 ## php
 
 Конфигурации для каждых из версий находятся по пути - ``` ${DOCKER_PATH}/app/php-{PHP_VERSION}/ ```.
