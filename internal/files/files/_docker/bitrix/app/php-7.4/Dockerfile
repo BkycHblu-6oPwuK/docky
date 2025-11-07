@@ -42,7 +42,7 @@ RUN apt-get install -y --allow-unauthenticated \
     git
     
 RUN update-ca-certificates && \
-    pecl install imagick && \
+    pecl install imagick-3.7.0 && \
     pecl install xdebug-3.1.6 && \
     docker-php-ext-enable imagick && \
     docker-php-ext-enable xdebug && \

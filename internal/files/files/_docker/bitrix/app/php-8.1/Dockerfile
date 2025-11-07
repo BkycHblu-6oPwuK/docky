@@ -35,17 +35,17 @@ RUN apt-get install -y \
     git
     
 RUN update-ca-certificates && \
-    pecl install imagick && \
-    pecl install xdebug && \
+    pecl install imagick-3.7.0 && \
+    pecl install xdebug-3.2.2 && \
     docker-php-ext-enable imagick && \
     docker-php-ext-enable xdebug && \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm && \
     docker-php-ext-install pdo_mysql mysqli bcmath gd zip
 
-RUN pecl install memcache && docker-php-ext-enable memcache
+RUN pecl install memcache-8.2 && docker-php-ext-enable memcache
 
-RUN pecl install igbinary && \
-    pecl install -D 'enable-redis-igbinary="yes"' redis && \
+RUN pecl install igbinary-3.2.14 && \
+    pecl install -D 'enable-redis-igbinary="yes"' redis-6.0.2 && \
     docker-php-ext-enable igbinary redis
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
