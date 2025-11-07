@@ -1,11 +1,15 @@
 FROM php:7.4-fpm
 
-RUN sed -i 's|deb.debian.org|archive.debian.org|g' /etc/apt/sources.list && \
-    sed -i '/security.debian.org/d' /etc/apt/sources.list && \
-    sed -i '/bullseye-security/d' /etc/apt/sources.list && \
-    echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until && \
-    echo 'Acquire::AllowInsecureRepositories "true";' >> /etc/apt/apt.conf.d/99no-check-valid-until && \
-    apt-get update
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y apt-transport-https ca-certificates; \
+    sed -i 's|deb.debian.org|archive.debian.org|g' /etc/apt/sources.list; \
+    sed -i 's|security.debian.org|archive.debian.org|g' /etc/apt/sources.list; \
+    sed -i 's|http://|https://|g' /etc/apt/sources.list; \
+    sed -i '/-security/d' /etc/apt/sources.list; \
+    echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until; \
+    echo 'Acquire::AllowInsecureRepositories "true";' >> /etc/apt/apt.conf.d/99no-check-valid-until; \
+    apt-get -o Acquire::AllowInsecureRepositories=true update
 
 ARG USERGROUP
 ENV SUPERVISOR_PHP_USER="docky"
