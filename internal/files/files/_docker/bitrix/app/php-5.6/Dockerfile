@@ -45,7 +45,7 @@ RUN update-ca-certificates && \
     pecl install xdebug-2.5.5 && \
     docker-php-ext-enable imagick && \
     docker-php-ext-enable xdebug && \
-    docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm && \
+    docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/ && \
     docker-php-ext-install pdo_mysql mysqli bcmath gd zip
 
 RUN pecl install memcache-3.0.8 && docker-php-ext-enable memcache
