@@ -15,4 +15,14 @@ curl -sSL https://raw.githubusercontent.com/BkycHblu-6oPwuK/docky/main/bin/docky
 chmod +x "$TMP_FILE"
 sudo mv "$TMP_FILE" "$INSTALL_DIR/$BINARY_NAME"
 echo "Установка прошла успешно"
-echo "Выполните команду $BINARY_NAME clean-cache для очистки кеша"
+
+# === Установка автодополнения ===
+if command -v docky >/dev/null; then
+    echo "Настройка автодополнения..."
+    sudo mkdir -p /etc/bash_completion.d
+    docky completion bash | sudo tee /etc/bash_completion.d/docky >/dev/null
+    echo "Автодополнение установлено в /etc/bash_completion.d/docky"
+fi
+
+echo "Выполните: exec bash (или перезапустите терминал)"
+echo "Команда для очистки кеша: docky clean-cache"

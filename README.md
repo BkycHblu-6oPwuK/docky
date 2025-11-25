@@ -25,6 +25,25 @@ curl -sSL https://raw.githubusercontent.com/BkycHblu-6oPwuK/docky/main/scripts/i
 
 После установки проверьте работу скрипта, можете выполнить команду ```docky```
 
+## Автодополнение
+
+автоматически устанавливается в скрипте install.sh
+
+с помощью команды
+
+```bash
+docky completion --help
+```
+
+выполните для bash
+
+```bash
+docky completion bash >> ~/.bashrc
+source ~/.bashrc
+# или глобально если установлен пакет bash-completion.
+docky completion bash | sudo tee /etc/bash_completion.d/docky
+```
+
 ## Публикация docker-compose.yml
 
 Команды выполняются в директории с docker-compose.yml или в любой другой дочерней, но при этом файл docker-compose.yml должен существовать (для всех команд, кроме - init и clean-cache).
