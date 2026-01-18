@@ -1,4 +1,4 @@
-FROM php:8.4-fpm
+FROM php:8.5-fpm
 
 ARG USERGROUP
 ENV SUPERVISOR_PHP_USER="docky"
@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libwebp-dev \
     libxpm-dev \
-    libicu-dev \
     zip \
     unzip \
     ca-certificates
@@ -29,7 +28,6 @@ RUN apt-get install -y libmagickwand-dev imagemagick
 RUN apt-get install -y \
     wget \
     nginx \
-    cron \
     supervisor \
     gifsicle \
     jpegoptim \
@@ -56,10 +54,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-x
     pdo_sqlite \
     bcmath \
     gd \
-    zip \
-    xml \
-    intl \
-    opcache
+    zip
 
 RUN apt-get update && apt-get install -y \
   libmemcached-dev \
@@ -79,13 +74,13 @@ RUN echo "alias composer='XDEBUG_MODE=off composer'" >> /etc/bash.bashrc \
  && echo "alias composer='XDEBUG_MODE=off composer'" >> /home/docky/.bashrc \
  && chown docky:docky /home/docky/.bashrc
 
+USER docky
+
+RUN composer global require laravel/installer
+
+USER root
+
 COPY app/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY app/cron /var/spool/cron/crontabs
-RUN echo "" >> /var/spool/cron/crontabs/docky
-RUN chown docky:docky /var/spool/cron/crontabs/docky
-RUN chmod 0600 /var/spool/cron/crontabs/docky /var/spool/cron/crontabs/root
-RUN touch /var/log/cron.log
-RUN service cron restart
 
 COPY bin/app_entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh && \
@@ -96,8 +91,8 @@ COPY bin/create_simlink.sh /usr/local/bin/create_simlink.sh
 RUN sed -i 's/\r$//' /usr/local/bin/create_simlink.sh && \
     chmod +x /usr/local/bin/create_simlink.sh
 
-COPY app/php-8.4/php.ini /usr/local/etc/php/conf.d/php.ini
-COPY app/php-8.4/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY app/php-8.5/php.ini /usr/local/etc/php/conf.d/php.ini
+COPY app/php-8.5/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 COPY app/php-fpm.conf /usr/local/etc/php-fpm.d/zzzzwww.conf
 COPY app/nginx /etc/nginx/conf.d
 

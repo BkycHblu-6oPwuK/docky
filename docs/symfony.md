@@ -1,6 +1,6 @@
 # Конфигурация под symfony
 
-nginx + php (8.2, 8.3, 8.4) + mysql|mariadb|postgres|sqlite
+nginx + php (8.2, 8.3, 8.4, 8.5) + mysql|mariadb|postgres|sqlite
 а так же redis|memcached
 
 ## Шаги публикации docker-compose.yml

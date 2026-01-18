@@ -37,7 +37,8 @@ RUN apt-get install -y \
     libxml2-dev \
     libonig-dev \
     libsqlite3-dev \
-    libpq-dev
+    libpq-dev \
+    git
 
 RUN update-ca-certificates
 
@@ -55,8 +56,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-x
     gd \
     zip \
     xml \
-    opcache \
-    git
+    opcache
 
 RUN apt-get update && apt-get install -y \
   libmemcached-dev \

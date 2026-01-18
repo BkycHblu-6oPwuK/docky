@@ -48,19 +48,19 @@ func GetAvailableVersions(service string, yamlConfig *config.YamlConfig) []strin
 	case App:
 		switch yamlConfig.FrameworkName {
 		case framework.BitrixNuxt, framework.Laravel, framework.Symfony, framework.Vanilla:
-			return []string{"8.2", "8.3", "8.4"}
+			return []string{"8.2", "8.3", "8.4", "8.5"}
 		default:
-			return []string{"5.6", "7.1", "7.4", "8.1", "8.2", "8.3", "8.4"}
+			return []string{"5.6", "7.1", "7.4", "8.1", "8.2", "8.3", "8.4", "8.5"}
 		}
 	case Mysql:
 		switch yamlConfig.FrameworkName {
 		case framework.Laravel, framework.Symfony, framework.Vanilla:
-			return []string{"8.0", "latest"}
+			return []string{"8.0", "9.0", "latest"}
 		default:
-			return []string{"5.7", "8.0", "latest"}
+			return []string{"5.7", "8.0", "9.0", "latest"}
 		}
 	case Mariadb:
-		return []string{"11.7", "latest"}
+		return []string{"12.1", "latest"}
 	case Postgres:
 		return []string{"17", "latest"}
 	default:

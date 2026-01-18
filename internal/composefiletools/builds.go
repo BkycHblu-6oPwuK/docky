@@ -109,6 +109,7 @@ func buildNodeService() service.Service {
 	nodeService := service.NewServiceBuilder().
 		WithBuildBuilder(getBaseBuildBuilder(GetVarNameString(config.DockerPathVarName)+"/"+Node+"/"+Dockerfile, map[string]string{
 			"NODE_VERSION": GetVarNameString(config.NodeVersionVarName),
+			"PHP_VERSION":  GetVarNameString(config.PhpVersionVarName),
 		})).
 		AddPort("5173:5173").
 		AddPort("5174:5174").

@@ -1,4 +1,4 @@
-FROM php:8.4-fpm
+FROM php:8.5-fpm
 
 ARG USERGROUP
 ENV SUPERVISOR_PHP_USER="docky"
@@ -57,9 +57,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-x
     bcmath \
     gd \
     zip \
-    xml \
-    intl \
-    opcache
+    intl
 
 RUN apt-get update && apt-get install -y \
   libmemcached-dev \
@@ -96,8 +94,8 @@ COPY bin/create_simlink.sh /usr/local/bin/create_simlink.sh
 RUN sed -i 's/\r$//' /usr/local/bin/create_simlink.sh && \
     chmod +x /usr/local/bin/create_simlink.sh
 
-COPY app/php-8.4/php.ini /usr/local/etc/php/conf.d/php.ini
-COPY app/php-8.4/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY app/php-8.5/php.ini /usr/local/etc/php/conf.d/php.ini
+COPY app/php-8.5/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 COPY app/php-fpm.conf /usr/local/etc/php-fpm.d/zzzzwww.conf
 COPY app/nginx /etc/nginx/conf.d
 
