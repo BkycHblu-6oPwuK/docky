@@ -57,7 +57,7 @@ func GetYamlConfig() *YamlConfig {
 		}
 		nodeVersion := os.Getenv(NodeVersionVarName)
 		if nodeVersion == "" {
-			nodeVersion = "23"
+			nodeVersion = "24"
 		}
 		cfg = &YamlConfig{
 			FrameworkName:   frameworkValue,
