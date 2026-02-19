@@ -356,9 +356,10 @@ docky artisan {arg}
 ```bash
 docky symfony {arg}
 ```
-- `composer` - Выполнение команды composer в контейнере с php
+- `composer` - Выполнение команды composer в контейнере с php, доступен флаги `-w|--workdir` для задание корневой директории выполнения команды composer
 ```bash
 docky composer install
+docky composer -w /var/www/local require monolog/monolog --with-all-dependencies
 ```
 - `npm` - Выполнение команды npm в контейнере с node js если он был установлен
 ```bash

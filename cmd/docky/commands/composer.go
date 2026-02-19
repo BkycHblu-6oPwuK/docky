@@ -10,10 +10,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var workdir string
 var composerCmd = &cobra.Command{
-	Use:                "composer",
-	Short:              "Запускает composer команду в контейнере " + composefiletools.App,
-	DisableFlagParsing: true,
+	Use:   "composer",
+	Short: "Запускает composer команду в контейнере " + composefiletools.App,
+	Args:  cobra.ArbitraryArgs,
+	FParseErrWhitelist: cobra.FParseErrWhitelist{
+		UnknownFlags: true,
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		globaltools.ValidateWorkDir()
 		if err := execComposerInContainer(args); err != nil {
@@ -25,14 +29,25 @@ var composerCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(composerCmd)
+	composerCmd.Flags().StringVarP(&workdir, "workdir", "w", "", "Рабочая директория внутри контейнера")
 }
 
 func execComposerInContainer(args []string) error {
-	execArgs := append([]string{
+	baseArgs := []string{
 		"exec", "-it",
-		"--user", "docky", "-e", "XDEBUG_MODE=off",
-		composefiletools.App, "composer",
-	}, args...)
+		"--user", "docky",
+		"-e", "XDEBUG_MODE=off",
+	}
+
+	if workdir != "" {
+		baseArgs = append(baseArgs, "-w", workdir)
+	}
+
+	baseArgs = append(baseArgs,
+		composefiletools.App,
+		"composer",
+	)
+	execArgs := append(baseArgs, args...)
 
 	return globaltools.ExecDockerCompose(execArgs)
 }
