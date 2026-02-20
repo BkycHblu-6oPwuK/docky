@@ -30,6 +30,8 @@ RUN apt-get install -y --allow-unauthenticated \
     jpegoptim \
     optipng \
     ghostscript \
+    curl \
+    openssl \
     msmtp \
     nginx \
     ca-certificates \
@@ -46,7 +48,7 @@ RUN update-ca-certificates && \
     docker-php-ext-enable imagick && \
     docker-php-ext-enable xdebug && \
     docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/ && \
-    docker-php-ext-install pdo_mysql mysqli bcmath gd zip
+    docker-php-ext-install pdo_mysql mysqli bcmath gd zip exif
 
 RUN pecl install memcache-3.0.8 && docker-php-ext-enable memcache
 
@@ -55,9 +57,8 @@ RUN pecl install igbinary-2.0.8 && \
     docker-php-ext-enable igbinary redis
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN curl -sS https://getcomposer.org/installer | php -- \
-    --filename=composer \
-    --install-dir=/usr/local/bin
+RUN curl -L https://getcomposer.org/download/2.2.26/composer.phar -o /usr/local/bin/composer \
+    && chmod +x /usr/local/bin/composer
 
 COPY app/msmtprc /home/docky/.msmtprc
 RUN chmod 600 /home/docky/.msmtprc

@@ -31,6 +31,8 @@ RUN apt-get install -y --allow-unauthenticated \
     jpegoptim \
     optipng \
     ghostscript \
+    curl \
+    openssl \
     msmtp \
     nginx \
     ca-certificates \

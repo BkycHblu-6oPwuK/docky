@@ -35,6 +35,8 @@ RUN apt-get install -y --allow-unauthenticated \
     jpegoptim \
     optipng \
     ghostscript \
+    curl \
+    openssl \
     msmtp \
     nginx \
     ca-certificates \
@@ -51,7 +53,7 @@ RUN update-ca-certificates && \
     docker-php-ext-enable imagick && \
     docker-php-ext-enable xdebug && \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm && \
-    docker-php-ext-install pdo_mysql mysqli bcmath gd zip
+    docker-php-ext-install pdo_mysql mysqli bcmath gd zip exif
 
 RUN pecl install memcache-4.0.5.2 && docker-php-ext-enable memcache
 

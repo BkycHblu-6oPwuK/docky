@@ -36,6 +36,7 @@ RUN apt-get install -y \
     optipng \
     ghostscript \
     curl \
+    openssl \
     libxml2-dev \
     libonig-dev \
     libsqlite3-dev \
