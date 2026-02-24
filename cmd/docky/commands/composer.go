@@ -39,8 +39,12 @@ func execComposerInContainer(args []string) error {
 		"-e", "XDEBUG_MODE=off",
 	}
 
-	if workdir != "" {
-		baseArgs = append(baseArgs, "-w", workdir)
+	resolvedWorkdir := workdir
+	if resolvedWorkdir == "" {
+		resolvedWorkdir = os.Getenv("COMPOSER_WORKDIR")
+	}
+	if resolvedWorkdir != "" {
+		baseArgs = append(baseArgs, "-w", resolvedWorkdir)
 	}
 
 	baseArgs = append(baseArgs,

@@ -69,6 +69,7 @@ POSTGRES_VERSION={любая версия доступная на docker hub}
 NODE_VERSION={любая версия доступная по ссылке - https://deb.nodesource.com/setup_${NODE_VERSION}.x}
 NODE_PATH=/var/www/local/js/vite # здесь путь до package json в контейнере, поэтому указывайте вместе абсолютный путь. /var/www - это DOCUMENT_ROOT сайта в контейнере
 USERGROUP={id группы пользователя (обычно 1000), по умолчанию скрипт автоматически прокидывает id группы текущего пользователя консоли, но если вы запустите скрипт из под root то автоматически пробросит 1000. Используйте эту переменную если нужно изменить группу пользователя в контейнерах app,nginx,node}
+COMPOSER_WORKDIR=/var/www # рабочая директория для команды composer внутри контейнера. Если не задана, composer запускается без явного указания директории в /var/www (site). Может быть переопределена флагом -w|--workdir при вызове команды
 ```
 
 Переменные окружения прокидываемые скриптом:
@@ -160,6 +161,25 @@ docky publish --file php.ini
 ```
 
 файл будет помещен в - ``` ${CONF_PATH}/app/php-{PHP_VERSION}/php.ini ```
+
+## Composer
+
+Composer доступен в контейнере `app`. Для выполнения команд используйте:
+
+```bash
+docky composer install
+docky composer require monolog/monolog
+```
+
+Рабочая директория внутри контейнера определяется по следующему приоритету:
+1. Флаг `-w|--workdir` — задаётся явно при вызове команды
+2. Переменная `COMPOSER_WORKDIR` из файла `.env`
+3. Если ничего не задано — composer запускается без явного указания директории в /var/www (site)
+
+```bash
+docky composer -w /var/www/local require monolog/monolog --with-all-dependencies
+docky composer require monolog/monolog
+```
 
 ## Xdebug
 
@@ -356,7 +376,7 @@ docky artisan {arg}
 ```bash
 docky symfony {arg}
 ```
-- `composer` - Выполнение команды composer в контейнере с php, доступен флаги `-w|--workdir` для задание корневой директории выполнения команды composer
+- `composer` - Выполнение команды composer в контейнере с php. Рабочая директория определяется по приоритету: флаг `-w|--workdir` → переменная `COMPOSER_WORKDIR` из `.env` → пропуск
 ```bash
 docky composer install
 docky composer -w /var/www/local require monolog/monolog --with-all-dependencies
