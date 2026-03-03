@@ -9,7 +9,6 @@ import (
 	"github.com/BkycHblu-6oPwuK/docky/v2/internal/config"
 	"github.com/BkycHblu-6oPwuK/docky/v2/internal/config/framework"
 	"github.com/BkycHblu-6oPwuK/docky/v2/internal/globaltools"
-	"github.com/BkycHblu-6oPwuK/docky/v2/internal/publishtools"
 	"github.com/BkycHblu-6oPwuK/docky/v2/pkg/filetools"
 	"github.com/BkycHblu-6oPwuK/docky/v2/pkg/readertools"
 )
@@ -33,7 +32,9 @@ func InitDockerComposeFile() error {
 	case framework.Symfony:
 		initSymfonyConfig(yamlConfig)
 	case framework.BitrixNuxt:
-		initBitrixNuxt(yamlConfig)
+		initBitrixNuxtConfig(yamlConfig)
+	case framework.Yii2:
+		initYii2Config(yamlConfig)
 	default:
 		initDefaultConfig(yamlConfig)
 	}
@@ -46,6 +47,11 @@ func InitDockerComposeFile() error {
 }
 
 func InitLaravel() error {
+	isInstall := readertools.AskYesNo("Устанавливать Laravel? (Если нет, будет создан пустой проект для ручной настройки)")
+	if !isInstall {
+		return nil
+	}
+
 	siteDir := config.GetSiteDirPath()
 
 	if !filetools.IsDirEmpty(siteDir) {
@@ -74,6 +80,11 @@ func InitLaravel() error {
 }
 
 func InitSymfony() error {
+	isInstall := readertools.AskYesNo("Устанавливать Symfony? (Если нет, будет создан пустой проект для ручной настройки)")
+	if !isInstall {
+		return nil
+	}
+
 	siteDir := config.GetSiteDirPath()
 
 	if !filetools.IsDirEmpty(siteDir) {
@@ -97,7 +108,7 @@ func InitSymfony() error {
 	return nil
 }
 
-func initBitrixNuxt(yamlConfig *config.YamlConfig) {
+func initBitrixNuxtConfig(yamlConfig *config.YamlConfig) {
 	yamlConfig.DbType = composefiletools.Mysql
 	if yamlConfig.MysqlVersion == "" {
 		yamlConfig.MysqlVersion = readertools.GetOrChoose("Выберите версию mysql: ", yamlConfig.MysqlVersion, composefiletools.GetAvailableVersions(composefiletools.Mysql, yamlConfig))
@@ -107,10 +118,11 @@ func initBitrixNuxt(yamlConfig *config.YamlConfig) {
 	yamlConfig.NodePath = "/var/www/nuxt"
 	globaltools.InitNode(yamlConfig)
 	yamlConfig.CreateSphinx = readertools.AskYesNo("Добавлять sphinx?")
-	errorPublish := publishtools.PublishExample(framework.BitrixNuxt)
-	if(errorPublish != nil) {
-		fmt.Println(errorPublish.Error())
-	}
+}
+
+func initYii2Config(yamlConfig *config.YamlConfig) {
+	chooseDbAndCache(yamlConfig)
+	chooseNode(yamlConfig)
 }
 
 func handleExistingComposeFile() error {
@@ -186,6 +198,35 @@ func recreateDir(dir string) error {
 	return filetools.InitDirs(dir)
 }
 
+func InitYii2() error {
+	isInstall := readertools.AskYesNo("Устанавливать Yii2? (Если нет, будет создан пустой проект для ручной настройки)")
+	if !isInstall {
+		return nil
+	}
+	siteDir := config.GetSiteDirPath()
+
+	if !filetools.IsDirEmpty(siteDir) {
+		if !readertools.AskYesNo("Директория с сайтом не пуста. Удалить всё и установить Yii2?") {
+			return nil
+		}
+		if err := recreateDir(siteDir); err != nil {
+			return err
+		}
+	}
+
+	if err := globaltools.ExecDockerCompose([]string{"build", composefiletools.App}); err != nil {
+		return err
+	}
+	if err := installYii2Project(); err != nil {
+		return err
+	}
+
+	if err := setupNodePackages(siteDir); err != nil {
+		return err
+	}
+	return nil
+}
+
 func installLaravelProject() error {
 	siteDir := config.GetSiteDirPath()
 	dir := "laravel"
@@ -233,6 +274,42 @@ func installSymfonyProject() error {
 		}
 	}
 
+	return nil
+}
+
+func installYii2Project() error {
+	isAdvanced := readertools.AskYesNo("Использовать advanced шаблон Yii2? (Если нет, будет установлен basic шаблон)")
+
+	template := "yiisoft/yii2-app-basic"
+	if isAdvanced {
+		template = "yiisoft/yii2-app-advanced"
+	}
+
+	dir := "yii2"
+
+	args := []string{
+		"run", "--rm",
+		"--user", "docky",
+		"-e", "XDEBUG_MODE=off",
+		"--entrypoint", "composer",
+		composefiletools.App,
+		"create-project",
+		"--prefer-dist",
+		"--no-install",
+		template,
+		dir,
+	}
+
+	if err := globaltools.ExecDockerCompose(args); err != nil {
+		return err
+	}
+
+	siteDir := config.GetSiteDirPath()
+	newPath := filepath.Join(siteDir, dir)
+	if exists, _ := filetools.FileIsExists(newPath); exists {
+		return filetools.MoveDirContents(newPath, siteDir)
+	}
+	globaltools.DownContainers()
 	return nil
 }
 

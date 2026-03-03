@@ -148,14 +148,11 @@ func PublishExample(framework framework.Framework) error {
         return fmt.Errorf("примеры для фреймворка %s не найдены в %s", framework, frameworkExamplesPath)
     }
     
-    //fmt.Printf("Копируем примеры для %s из %s в %s...\n", framework, frameworkExamplesPath, siteDirPath)
-    
     err := filetools.CopyDir(frameworkExamplesPath, siteDirPath)
     if err != nil {
         return fmt.Errorf("ошибка копирования примеров: %w", err)
     }
     
-    //fmt.Printf("Примеры для фреймворка %s успешно опубликованы в %s\n", framework, siteDirPath)
     return nil
 }
 
