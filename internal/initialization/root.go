@@ -20,6 +20,9 @@ func InitDockerComposeFile() error {
 
 	yamlConfig := config.GetYamlConfig()
 	yamlConfig.FrameworkName = framework.ParseFramework(readertools.GetOrChoose("Ваш фреймворк: ", "", framework.GetAllStrings()))
+	if yamlConfig.FrameworkName == framework.Yii2 {
+		yamlConfig.Yii2Advanced = readertools.AskYesNo("Использовать advanced шаблон Yii2? (Если нет, будет установлен basic шаблон)")
+	}
 	yamlConfig.PhpVersion = readertools.GetOrChoose("Выберите версию php: ", "", composefiletools.GetAvailableVersions(composefiletools.App, yamlConfig))
 
 	switch yamlConfig.FrameworkName {
@@ -198,7 +201,7 @@ func recreateDir(dir string) error {
 	return filetools.InitDirs(dir)
 }
 
-func InitYii2() error {
+func InitYii2(yamlConfig *config.YamlConfig) error {
 	isInstall := readertools.AskYesNo("Устанавливать Yii2? (Если нет, будет создан пустой проект для ручной настройки)")
 	if !isInstall {
 		return nil
@@ -217,7 +220,7 @@ func InitYii2() error {
 	if err := globaltools.ExecDockerCompose([]string{"build", composefiletools.App}); err != nil {
 		return err
 	}
-	if err := installYii2Project(); err != nil {
+	if err := installYii2Project(yamlConfig); err != nil {
 		return err
 	}
 
@@ -277,11 +280,9 @@ func installSymfonyProject() error {
 	return nil
 }
 
-func installYii2Project() error {
-	isAdvanced := readertools.AskYesNo("Использовать advanced шаблон Yii2? (Если нет, будет установлен basic шаблон)")
-
+func installYii2Project(yamlConfig *config.YamlConfig) error {
 	template := "yiisoft/yii2-app-basic"
-	if isAdvanced {
+	if yamlConfig.Yii2Advanced {
 		template = "yiisoft/yii2-app-advanced"
 	}
 

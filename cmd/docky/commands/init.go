@@ -36,7 +36,7 @@ var initCmd = &cobra.Command{
 			initialization.InitSymfony()
 		case framework.Yii2:
 			fmt.Println("Инициализация yii2")
-			initialization.InitYii2()
+			initialization.InitYii2(yamlConfig)
 		}
 		fmt.Println("✅ Инициализация проекта завершена!")
 	},

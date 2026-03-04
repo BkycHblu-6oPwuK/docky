@@ -89,9 +89,9 @@ func GetDockerFilesDirPathInCache() string {
 	return filepath.Join(GetScriptCacheDir(), DockerFilesDirName, GetCurFramework().String())
 }
 
-func GetExamplesCachePath() string {
-	return filepath.Join(GetScriptCacheDir(), "examples")
-}
+// func GetExamplesCachePath() string {
+// 	return filepath.Join(GetScriptCacheDir(), "examples")
+// }
 
 func GetCurrentDockerFileDirPath() string {
 	path := GetDockerFilesDirPath()

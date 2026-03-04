@@ -23,6 +23,7 @@ type YamlConfig struct {
 	CreateSphinx    bool
 	ServerCache     string // memcached, redis
 	UserGroup       string
+	Yii2Advanced    bool
 }
 
 const (
