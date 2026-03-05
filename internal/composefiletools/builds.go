@@ -2,6 +2,7 @@ package composefiletools
 
 import (
 	"github.com/BkycHblu-6oPwuK/docky/v2/internal/config"
+	"github.com/BkycHblu-6oPwuK/docky/v2/internal/config/framework"
 	"github.com/BkycHblu-6oPwuK/docky/v2/pkg/composefile/service"
 	"github.com/BkycHblu-6oPwuK/docky/v2/pkg/composefile/service/build"
 	"github.com/BkycHblu-6oPwuK/docky/v2/pkg/composefile/service/dependencies"
@@ -27,16 +28,40 @@ func buildBaseVolume() volume.Volume {
 	return volume.NewVolumeBuilder().Build()
 }
 
-func buildNginxService() service.Service {
-	nginxService := service.NewServiceBuilder().
+func buildNginxService(yamlConfig *config.YamlConfig, ports map[string]string) service.Service {
+	if(ports == nil) {
+		ports = map[string]string{
+			"80": "80",
+			"443": "443",
+		}
+	}
+
+	containerName := Nginx
+	if yamlConfig.FrameworkName == framework.Yii2 && yamlConfig.Yii2Backend {
+		containerName = NginxBackend
+	}
+
+	nginxServiceBuilder := service.NewServiceBuilder().
 		WithBuildBuilder(getBaseBuildBuilder(GetNginxComposePath(Dockerfile, false), nil)).
 		AddVolume(GetSiteVolumePath()).
-		AddPort("80:80").
-		AddPort("443:443").
 		WithDependenciesBuilder(getSimpleDependecyBulder(App)).
 		AddDefaultNetwork().
-		SetContainerName(Nginx).
-		Build()
+		SetContainerName(containerName)
+	
+	for hostPort, containerPort := range ports {
+		nginxServiceBuilder.AddPort(hostPort + ":" + containerPort)
+	}
+
+	if yamlConfig.FrameworkName == framework.Yii2 {
+		yii2Type := Yii2TypesTemplate{
+			Basic:            !yamlConfig.Yii2Advanced,
+			AdvancedBackend:  yamlConfig.Yii2Advanced && yamlConfig.Yii2Backend,
+			AdvancedFrontend: yamlConfig.Yii2Advanced,
+		}
+		nginxServiceBuilder.AddVolume(GetYii2ServerConfPath(yii2Type, false))
+	}
+
+	nginxService := nginxServiceBuilder.Build()
 	return nginxService
 }
 

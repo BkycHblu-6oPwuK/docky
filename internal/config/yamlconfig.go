@@ -24,6 +24,7 @@ type YamlConfig struct {
 	ServerCache     string // memcached, redis
 	UserGroup       string
 	Yii2Advanced    bool
+	Yii2Backend     bool
 }
 
 const (

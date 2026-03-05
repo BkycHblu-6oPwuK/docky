@@ -9,6 +9,7 @@ import (
 	"github.com/BkycHblu-6oPwuK/docky/v2/pkg/composefile/volume"
 )
 
+// функция для публикации изменений в compose файле. Загружает текущий compose, передает его билдеру, который изменяет его, затем билдит и сохраняет обратно
 func publishWithBuilder(modifier func(builder *composefile.ComposeFileBuilder) error) error {
 	path := config.GetDockerComposeFilePath()
 	compose, err := composefile.Load(path)
@@ -26,6 +27,7 @@ func publishWithBuilder(modifier func(builder *composefile.ComposeFileBuilder) e
 	return final.Save(path)
 }
 
+// функции публикации для разных сервисов. Внутри используют publishWithBuilder, передавая ему нужные изменения. Например, публикация mysql сервиса удаляет mariadb и postgres, если они есть, и добавляет mysql, если его нет
 func publishDatabaseService(target string, builderFunc func() service.Service) error {
 	alternatives := []string{Mysql, Mariadb, Postgres}
 	removeVolumes := map[string]string{
@@ -60,18 +62,22 @@ func publishDatabaseService(target string, builderFunc func() service.Service) e
 	})
 }
 
+// функции публикации для каждого сервиса. Вызывают publishDatabaseService с нужным билдером, или publishWithBuilder с нужными изменениями
 func PublishMysqlService() error {
 	return publishDatabaseService(Mysql, buildMysqlService)
 }
 
+// Публикует mariadb сервис. Удаляет mysql и postgres, если они есть, и добавляет mariadb, если его нет
 func PublishMariadbService() error {
 	return publishDatabaseService(Mariadb, buildMariadbService)
 }
 
+// Публикует postgres сервис. Удаляет mysql и mariadb, если они есть, и добавляет postgres, если его нет
 func PublishPostgresService() error {
 	return publishDatabaseService(Postgres, buildPostgresService)
 }
 
+// Публикует node сервис. Добавляет node, если его нет
 func PublishNodeService() error {
 	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
 		if !b.HasService(Node) {
@@ -81,6 +87,7 @@ func PublishNodeService() error {
 	})
 }
 
+// Публикует sphinx сервис. Добавляет sphinx, если его нет
 func PublishSphinxService() error {
 	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
 		if !b.HasService(Sphinx) {
@@ -91,6 +98,7 @@ func PublishSphinxService() error {
 	})
 }
 
+// Публикует redis сервис. Добавляет redis, если его нет
 func PublishRedisService() error {
 	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
 		if !b.HasService(Redis) {
@@ -101,6 +109,7 @@ func PublishRedisService() error {
 	})
 }
 
+// Публикует memcached сервис. Добавляет memcached, если его нет
 func PublishMemcachedService() error {
 	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
 		if !b.HasService(Memcached) {
@@ -110,6 +119,7 @@ func PublishMemcachedService() error {
 	})
 }
 
+// Публикует mailhog сервис. Добавляет mailhog, если его нет
 func PublishMailhogService() error {
 	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
 		if !b.HasService(Mailhog) {
@@ -119,9 +129,10 @@ func PublishMailhogService() error {
 	})
 }
 
+// Публикует phpmyadmin сервис. Добавляет phpmyadmin, если его нет, и связывает его с mysql или mariadb, если они есть. Если mysql и mariadb нет, возвращает ошибку
 func PublishPhpMyAdminService() error {
 	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
-		publish := func (host string) {
+		publish := func(host string) {
 			if !b.HasService(PhpMyAdmin) {
 				b.AddService(PhpMyAdmin, buildPhpMyAdminService(host))
 			}
@@ -138,6 +149,8 @@ func PublishPhpMyAdminService() error {
 }
 
 // volumes map serviceName>>[]string volumes
+// modifier функция, которая принимает билдер сервиса и может его изменить. Если возвращает isContinue=false, то к этому сервису не будут применены тома из volumes
+// Публикует тома для сервисов. Для каждого сервиса из volumes, если он есть в compose, вызывает modifier для его билдера, и если modifier возвращает isContinue=true, то добавляет тома из volumes к этому сервису
 func PublishVolumes(volumes map[string][]string, modifier func(b *service.ServiceBuilder) (isContinue bool, err error)) error {
 	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
 		for serviceName, volumes := range volumes {
@@ -162,6 +175,7 @@ func PublishVolumes(volumes map[string][]string, modifier func(b *service.Servic
 	})
 }
 
+// Публикует dockerfile для сервиса. Если сервиса нет, возвращает ошибку. Если сервис есть, заменяет его dockerfile на переданный
 func PublishDockerfile(serviceName, dockerfile string) error {
 	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
 		if curService, exists := b.GetService(serviceName); exists {
@@ -171,6 +185,15 @@ func PublishDockerfile(serviceName, dockerfile string) error {
 			}
 		} else {
 			return fmt.Errorf("сервис %s не найден", serviceName)
+		}
+		return nil
+	})
+}
+
+func PublishNginxYii2BackendService(yamlConfig *config.YamlConfig) error {
+	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
+		if !b.HasService(NginxBackend) {
+			b.AddService(NginxBackend, buildNginxService(yamlConfig, map[string]string{"8000": "80", "4430": "443"}))
 		}
 		return nil
 	})

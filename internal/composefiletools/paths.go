@@ -2,6 +2,12 @@ package composefiletools
 
 import "github.com/BkycHblu-6oPwuK/docky/v2/internal/config"
 
+type Yii2TypesTemplate struct {
+	Basic            bool
+	AdvancedFrontend bool
+	AdvancedBackend  bool
+}
+
 func GetNginxConfPathInContainer() string {
 	return "/etc/nginx/" + ConfDir
 }
@@ -78,15 +84,30 @@ func GetSiteVolumePath() string {
 }
 
 func GetMysqlCnfPath(isConfPath bool) string {
-	return getBaseConfComposePath(isConfPath)+"/"+Mysql+"/my.cnf:/etc/mysql/conf.d/my.cnf"
+	return getBaseConfComposePath(isConfPath) + "/" + Mysql + "/my.cnf:/etc/mysql/conf.d/my.cnf"
 }
 
 func GetPostgresConfPath(isConfPath bool) string {
-	return getBaseConfComposePath(isConfPath)+"/"+Postgres+"/postgresql.conf:/etc/postgresql/postgresql.conf"
+	return getBaseConfComposePath(isConfPath) + "/" + Postgres + "/postgresql.conf:/etc/postgresql/postgresql.conf"
 }
 
 func GetSupervisordConfPath() string {
-	return getBaseConfComposePath(true)+"/"+App+"/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf"
+	return getBaseConfComposePath(true) + "/" + App + "/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf"
+}
+
+func GetYii2ServerConfPath(yii2Type Yii2TypesTemplate, isConfPath bool) string {
+	return getBaseConfComposePath(isConfPath) + "/" + Nginx + "/conf.d/snippets/" + getYii2TypeConfName(yii2Type) + ":/etc/nginx/conf.d/snippets/about.conf"
+}
+
+func getYii2TypeConfName(yii2Type Yii2TypesTemplate) string {
+	switch {
+	case yii2Type.AdvancedBackend:
+		return "advanced-backend-server.conf"
+	case yii2Type.AdvancedFrontend:
+		return "advanced-frontend-server.conf"
+	default:
+		return "basic-server.conf"
+	}
 }
 
 func getBaseConfComposePath(isConfPath bool) string {

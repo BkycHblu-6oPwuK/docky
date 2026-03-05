@@ -31,23 +31,37 @@ func init() {
 }
 
 func share(args []string) error {
-	hasAuth := false
-	for _, arg := range args {
-		if strings.HasPrefix(arg, "--auth") {
-			hasAuth = true
-			break
+	hasFlag := func(name string) bool {
+		prefix := "--" + name
+		for _, a := range args {
+			if a == prefix || strings.HasPrefix(a, prefix+"=") {
+				return true
+			}
 		}
+		return false
 	}
 
-	if !hasAuth {
-		authToken := "e17105f7-e499-470a-bd5b-05c0a579036f"
-		args = append(args, "--auth="+authToken)
+	cmdArgs := []string{
+		"run", "--init", "--rm",
+		"-p", "4040:4040",
+		"-t",
+		"beyondcodegmbh/expose-server:latest",
+		"share",
 	}
 
-	cmdArgs := append([]string{
-		"run", "--init", "--rm", "-p", "4040:4040", "-t",
-		"beyondcodegmbh/expose-server:latest", "share", "http://host.docker.internal:80",
-	}, args...)
+	if !hasFlag("server-host") {
+		cmdArgs = append(cmdArgs, "--server-host=laravel-sail.site")
+	}
+
+	if !hasFlag("server-port") {
+		cmdArgs = append(cmdArgs, "--server-port=8080")
+	}
+
+	if !hasFlag("domain") {
+		cmdArgs = append(cmdArgs, "--domain=laravel-sail.site")
+	}
+
+	cmdArgs = append(cmdArgs, args...)
 
 	cmd := exec.Command("docker", cmdArgs...)
 	cmd.Dir = config.GetWorkDirPath()

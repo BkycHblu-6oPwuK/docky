@@ -9,6 +9,7 @@ import (
 const (
 	Dockerfile          string = "Dockerfile"
 	Nginx               string = "nginx"
+	NginxBackend        string = "nginx-backend"
 	SitePathInContainer string = "/var/www"
 	ConfDir             string = "conf.d"
 	App                 string = "app"
@@ -101,15 +102,20 @@ func GetAvailableVersions(service string, yamlConfig *config.YamlConfig) []strin
 // }
 
 func BuildYaml(yamlConfig *config.YamlConfig) *composefile.ComposeFile {
-	fileBuilder := composefile.NewComposeFileBuilder().AddDefaultNetwork().AddService(Nginx, buildNginxService()).
+	fileBuilder := composefile.NewComposeFileBuilder().AddDefaultNetwork().AddService(Nginx, buildNginxService(yamlConfig, nil)).
 		AddService(App, buildAppService(yamlConfig))
+
+	if(yamlConfig.FrameworkName == framework.Yii2 && yamlConfig.Yii2Advanced) {
+		yamlConfig.Yii2Backend = true
+		fileBuilder.AddService(NginxBackend, buildNginxService(yamlConfig, map[string]string{"8000": "80", "4430": "443"}))
+	}
 
 	switch yamlConfig.DbType {
 	case Postgres:
 		fileBuilder.AddService(Postgres, buildPostgresService()).AddVolume(Postgres_data, buildBaseVolume())
 	case Mysql:
 		fileBuilder.AddService(Mysql, buildMysqlService()).AddVolume(Mysql_data, buildBaseVolume())
-	case Mariadb: 
+	case Mariadb:
 		fileBuilder.AddService(Mariadb, buildMariadbService()).AddVolume(Mariadb_data, buildBaseVolume())
 	}
 
