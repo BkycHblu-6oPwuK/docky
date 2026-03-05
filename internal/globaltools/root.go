@@ -95,6 +95,10 @@ func InitEnvFile(yamlConfig *config.YamlConfig) error {
 		config.NodePathVarName + "=" + yamlConfig.NodePath,
 	}
 
+	if yamlConfig.Yii2Advanced {
+		data = append(data, config.Yii2AdvancedVarName+"=true")
+	}
+
 	if yamlConfig.UserGroup != "" {
 		data = append(data, config.UserGroupVarName+"="+yamlConfig.UserGroup)
 	}

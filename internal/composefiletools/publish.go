@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/BkycHblu-6oPwuK/docky/v2/internal/config"
+	"github.com/BkycHblu-6oPwuK/docky/v2/internal/config/framework"
 	"github.com/BkycHblu-6oPwuK/docky/v2/pkg/composefile"
 	"github.com/BkycHblu-6oPwuK/docky/v2/pkg/composefile/service"
 	"github.com/BkycHblu-6oPwuK/docky/v2/pkg/composefile/volume"
@@ -148,6 +149,22 @@ func PublishPhpMyAdminService() error {
 	})
 }
 
+func PublishNginxYii2BackendService(yamlConfig *config.YamlConfig) error {
+	if yamlConfig.FrameworkName != framework.Yii2 {
+		return fmt.Errorf("nginx yii2 backend сервис может быть опубликован только для проектов на yii2. Текущий фреймворк: %s", yamlConfig.FrameworkName)
+	}
+	if !yamlConfig.Yii2Advanced {
+		return fmt.Errorf("nginx yii2 backend сервис может быть опубликован только для yii2 advanced. Текущий проект не является yii2 advanced")
+	}
+	yamlConfig.Yii2Backend = true
+	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
+		if !b.HasService(NginxBackend) {
+			b.AddService(NginxBackend, buildNginxService(yamlConfig, map[string]string{"8000": "80", "4430": "443"}))
+		}
+		return nil
+	})
+}
+
 // volumes map serviceName>>[]string volumes
 // modifier функция, которая принимает билдер сервиса и может его изменить. Если возвращает isContinue=false, то к этому сервису не будут применены тома из volumes
 // Публикует тома для сервисов. Для каждого сервиса из volumes, если он есть в compose, вызывает modifier для его билдера, и если modifier возвращает isContinue=true, то добавляет тома из volumes к этому сервису
@@ -178,22 +195,26 @@ func PublishVolumes(volumes map[string][]string, modifier func(b *service.Servic
 // Публикует dockerfile для сервиса. Если сервиса нет, возвращает ошибку. Если сервис есть, заменяет его dockerfile на переданный
 func PublishDockerfile(serviceName, dockerfile string) error {
 	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
-		if curService, exists := b.GetService(serviceName); exists {
-			if curService.Build.Dockerfile != "" {
-				curService.Build.Dockerfile = dockerfile
-				b.AddService(serviceName, curService)
-			}
-		} else {
-			return fmt.Errorf("сервис %s не найден", serviceName)
+		config := config.GetYamlConfig()
+		services := []string{serviceName}
+		if serviceName == Nginx && config.FrameworkName == framework.Yii2 && config.Yii2Advanced {
+			services = append(services, NginxBackend)
 		}
-		return nil
-	})
-}
-
-func PublishNginxYii2BackendService(yamlConfig *config.YamlConfig) error {
-	return publishWithBuilder(func(b *composefile.ComposeFileBuilder) error {
-		if !b.HasService(NginxBackend) {
-			b.AddService(NginxBackend, buildNginxService(yamlConfig, map[string]string{"8000": "80", "4430": "443"}))
+		addServiceHandler := func(serviceName string) error {
+			if curService, exists := b.GetService(serviceName); exists {
+				if curService.Build.Dockerfile != "" {
+					curService.Build.Dockerfile = dockerfile
+					b.AddService(serviceName, curService)
+				}
+			} else {
+				return fmt.Errorf("сервис %s не найден", serviceName)
+			}
+			return nil
+		}
+		for _, serviceName := range services {
+			if err := addServiceHandler(serviceName); err != nil {
+				return err
+			}
 		}
 		return nil
 	})

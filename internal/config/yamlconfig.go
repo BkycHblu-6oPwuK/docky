@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"strconv"
 	"sync"
 
@@ -39,6 +40,7 @@ const (
 	NodeVersionVarName     string = "NODE_VERSION"
 	SitePathVarName        string = "SITE_PATH"
 	NodePathVarName        string = "NODE_PATH"
+	Yii2AdvancedVarName    string = "YII2_ADVANCED"
 )
 
 var (
@@ -52,10 +54,21 @@ func GetYamlConfig() *YamlConfig {
 			panic("Ошибка при загрузке файла .env")
 		}
 		var frameworkValue framework.Framework
+		yii2AdvancedRawValue := os.Getenv(Yii2AdvancedVarName)
+		yii2Advanced := yii2AdvancedRawValue == "true" || yii2AdvancedRawValue == "1"
 		if frameworkEnv := os.Getenv(DockyFrameworkVarName); frameworkEnv == "" {
 			frameworkValue = ""
 		} else {
 			frameworkValue = framework.ParseFramework(frameworkEnv)
+		}
+		if !yii2Advanced && frameworkValue == framework.Yii2 {
+			backandPath := filepath.Join(GetSiteDirPath(), "backend")
+			backandExists, _ := filetools.FileIsExists(backandPath)
+			frontendPath := filepath.Join(GetSiteDirPath(), "frontend")
+			frontendExists, _ := filetools.FileIsExists(frontendPath)
+			if backandExists && frontendExists {
+				yii2Advanced = true
+			}
 		}
 		nodeVersion := os.Getenv(NodeVersionVarName)
 		if nodeVersion == "" {
@@ -70,6 +83,7 @@ func GetYamlConfig() *YamlConfig {
 			NodeVersion:     nodeVersion,
 			NodePath:        os.Getenv(NodePathVarName),
 			UserGroup:       os.Getenv(UserGroupVarName),
+			Yii2Advanced:    yii2Advanced,
 		}
 	})
 	return cfg

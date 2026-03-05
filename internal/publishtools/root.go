@@ -78,12 +78,31 @@ func PublishFile(file string) error {
 		if err := files.PublishFile(fileConfPath, filepath.Join(config.GetConfFilesDirPath(), pathToConfFile), true); err != nil {
 			return err
 		}
-		return composefiletools.PublishVolumes(map[string][]string{
+		nginxVolumesMap := map[string][]string{
 			composefiletools.Nginx: {
 				composefiletools.GetNginxConfVolumePath(""),
 				composefiletools.GetNginxConfFileVolumePath(),
 			},
-		}, func(b *service.ServiceBuilder) (isContinue bool, err error) {
+		}
+		yamlConfig := config.GetYamlConfig()
+		if yamlConfig.FrameworkName == framework.Yii2 {
+			nginxVolumesMap[composefiletools.NginxBackend] = []string{
+				composefiletools.GetNginxConfVolumePath(""),
+				composefiletools.GetNginxConfFileVolumePath(),
+			}
+			if yamlConfig.Yii2Advanced {
+				nginxVolumesMap[composefiletools.Nginx] = append(nginxVolumesMap[composefiletools.Nginx], composefiletools.GetYii2ServerConfPath(composefiletools.Yii2TypesTemplate{
+					AdvancedFrontend: true,
+				}, true))
+				nginxVolumesMap[composefiletools.NginxBackend] = append(nginxVolumesMap[composefiletools.NginxBackend], composefiletools.GetYii2ServerConfPath(composefiletools.Yii2TypesTemplate{
+					AdvancedBackend: true,
+				}, true))
+			} else {
+				nginxVolumesMap[composefiletools.Nginx] = append(nginxVolumesMap[composefiletools.Nginx], composefiletools.GetYii2ServerConfPath(composefiletools.Yii2TypesTemplate{Basic: true}, true))
+				nginxVolumesMap[composefiletools.NginxBackend] = append(nginxVolumesMap[composefiletools.NginxBackend], composefiletools.GetYii2ServerConfPath(composefiletools.Yii2TypesTemplate{Basic: true}, true))
+			}
+		}
+		return composefiletools.PublishVolumes(nginxVolumesMap, func(b *service.ServiceBuilder) (isContinue bool, err error) {
 			b.FilterVolumes(func(volume string) bool {
 				return !strings.Contains(volume, composefiletools.GetNginxConfPathInContainer())
 			})
@@ -142,17 +161,17 @@ func PublishFile(file string) error {
 //     if exists, _ := filetools.FileIsExists(examplesCachePath); !exists {
 //         return fmt.Errorf("директория с примерами не найдена: %s", examplesCachePath)
 //     }
-    
+
 //     frameworkExamplesPath := filepath.Join(examplesCachePath, framework.String())
 //     if exists, _ := filetools.FileIsExists(frameworkExamplesPath); !exists {
 //         return fmt.Errorf("примеры для фреймворка %s не найдены в %s", framework, frameworkExamplesPath)
 //     }
-    
+
 //     err := filetools.CopyDir(frameworkExamplesPath, siteDirPath)
 //     if err != nil {
 //         return fmt.Errorf("ошибка копирования примеров: %w", err)
 //     }
-    
+
 //     return nil
 // }
 
@@ -203,6 +222,8 @@ func PublishService(service string) error {
 		return composefiletools.PublishMailhogService()
 	case composefiletools.PhpMyAdmin:
 		return composefiletools.PublishPhpMyAdminService()
+	case composefiletools.NginxBackend:
+		return composefiletools.PublishNginxYii2BackendService(config.GetYamlConfig())
 	default:
 		return fmt.Errorf("неизвестный сервис: %s", service)
 	}
