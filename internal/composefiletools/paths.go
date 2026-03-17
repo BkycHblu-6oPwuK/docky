@@ -99,6 +99,10 @@ func GetYii2ServerConfPath(yii2Type Yii2TypesTemplate, isConfPath bool) string {
 	return getBaseConfComposePath(isConfPath) + "/" + Nginx + "/conf.d/snippets/" + getYii2TypeConfName(yii2Type) + ":/etc/nginx/conf.d/snippets/about.conf"
 }
 
+func GetAppEntrypointPath(isConfPath bool) string {
+	return getBaseConfComposePath(isConfPath) + "/" + Bin + "/app_entrypoint.sh:/usr/local/bin/entrypoint.sh"
+}
+
 func getYii2TypeConfName(yii2Type Yii2TypesTemplate) string {
 	switch {
 	case yii2Type.AdvancedBackend:

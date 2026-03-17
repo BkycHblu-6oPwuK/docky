@@ -38,6 +38,8 @@ func InitDockerComposeFile() error {
 		initBitrixNuxtConfig(yamlConfig)
 	case framework.Yii2:
 		initYii2Config(yamlConfig)
+	case framework.Yii3:
+		initYii3Config(yamlConfig)
 	default:
 		initDefaultConfig(yamlConfig)
 	}
@@ -124,6 +126,11 @@ func initBitrixNuxtConfig(yamlConfig *config.YamlConfig) {
 }
 
 func initYii2Config(yamlConfig *config.YamlConfig) {
+	chooseDbAndCache(yamlConfig)
+	chooseNode(yamlConfig)
+}
+
+func initYii3Config(yamlConfig *config.YamlConfig) {
 	chooseDbAndCache(yamlConfig)
 	chooseNode(yamlConfig)
 }
@@ -230,6 +237,34 @@ func InitYii2(yamlConfig *config.YamlConfig) error {
 	return nil
 }
 
+func InitYii3() error {
+	isInstall := readertools.AskYesNo("Устанавливать Yii3? (Если нет, будет создан пустой проект для ручной настройки)")
+	if !isInstall {
+		return nil
+	}
+	siteDir := config.GetSiteDirPath()
+
+	if !filetools.IsDirEmpty(siteDir) {
+		if !readertools.AskYesNo("Директория с сайтом не пуста. Удалить всё и установить Yii3?") {
+			return nil
+		}
+		if err := recreateDir(siteDir); err != nil {
+			return err
+		}
+	}
+
+	if err := globaltools.ExecDockerCompose([]string{"build", composefiletools.App}); err != nil {
+		return err
+	}
+	if err := installYii3Project(); err != nil {
+		return err
+	}
+	if err := setupNodePackages(siteDir); err != nil {
+		return err
+	}
+	return nil
+}
+
 func installLaravelProject() error {
 	siteDir := config.GetSiteDirPath()
 	dir := "laravel"
@@ -307,6 +342,31 @@ func installYii2Project(yamlConfig *config.YamlConfig) error {
 
 	siteDir := config.GetSiteDirPath()
 	newPath := filepath.Join(siteDir, dir)
+	if exists, _ := filetools.FileIsExists(newPath); exists {
+		return filetools.MoveDirContents(newPath, siteDir)
+	}
+	globaltools.DownContainers()
+	return nil
+}
+
+func installYii3Project() error {
+	args := []string{
+		"run", "--rm",
+		"--user", "docky",
+		"-e", "XDEBUG_MODE=off",
+		"--entrypoint", "composer",
+		composefiletools.App,
+		"create-project",
+		"yiisoft/app",
+		"yii3",
+	}
+
+	if err := globaltools.ExecDockerCompose(args); err != nil {
+		return err
+	}
+
+	siteDir := config.GetSiteDirPath()
+	newPath := filepath.Join(siteDir, "yii3")
 	if exists, _ := filetools.FileIsExists(newPath); exists {
 		return filetools.MoveDirContents(newPath, siteDir)
 	}

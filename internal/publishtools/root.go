@@ -150,6 +150,17 @@ func PublishFile(file string) error {
 				composefiletools.GetSupervisordConfPath(),
 			},
 		}, nil)
+	case "app_entrypoint":
+		pathToEntrypoint := filepath.Join(composefiletools.Bin, "app_entrypoint.sh")
+		filePath := filepath.Join(config.DockerFilesDirName, config.GetCurFramework().String(), pathToEntrypoint)
+		if err := files.PublishFile(filePath, filepath.Join(config.GetConfFilesDirPath(), pathToEntrypoint), true); err != nil {
+			return err
+		}
+		return composefiletools.PublishVolumes(map[string][]string{
+			composefiletools.App: {
+				composefiletools.GetAppEntrypointPath(true),
+			},
+		}, nil)
 	default:
 		return fmt.Errorf("неизвестный файл: %s", file)
 	}

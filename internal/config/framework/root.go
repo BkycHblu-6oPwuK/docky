@@ -8,6 +8,7 @@ const (
 	Laravel    Framework = "laravel"
 	Symfony    Framework = "symfony"
 	Yii2	   Framework = "yii2"
+	Yii3	   Framework = "yii3"
 	Vanilla    Framework = "vanilla"
 )
 
@@ -18,6 +19,7 @@ func GetAll() []Framework {
 		Laravel,
 		Symfony,
 		Yii2,
+		Yii3,
 		Vanilla,
 	}
 }
@@ -43,6 +45,8 @@ func ParseFramework(s string) Framework {
 		return Symfony
 	case Yii2.String():
 		return Yii2
+	case Yii3.String():
+		return Yii3
 	case Vanilla.String():
 		return Vanilla
 	default:

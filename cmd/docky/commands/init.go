@@ -37,7 +37,11 @@ var initCmd = &cobra.Command{
 		case framework.Yii2:
 			fmt.Println("Инициализация yii2")
 			initialization.InitYii2(yamlConfig)
+		case framework.Yii3:
+			fmt.Println("Инициализация yii3")
+			initialization.InitYii3()
 		}
+
 		fmt.Println("✅ Инициализация проекта завершена!")
 	},
 }

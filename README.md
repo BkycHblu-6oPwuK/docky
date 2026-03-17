@@ -94,7 +94,7 @@ docky publish
 Можно опубликовать отдельные файлы командой:
 
 ```bash
-docky publish --file php.ini|xdebug.ini|cron_tasks|nginx_conf|symlinks|mysql_conf|postgres_conf|supervisord_conf
+docky publish --file php.ini|xdebug.ini|cron_tasks|nginx_conf|symlinks|mysql_conf|postgres_conf|supervisord_conf|app_entrypoint
 docky publish --dockerfile app|nginx|node
 ```
 
@@ -105,9 +105,10 @@ docky publish --dockerfile app|nginx|node
 - mysql_conf - ${CONF_PATH}/mysql/my.cnf для сервисов mysql и mariadb
 - postgres_conf - ${CONF_PATH}/postgres/postgres.conf
 - supervisord_conf - ${CONF_PATH}/app/supervisord.conf
-- nginx_conf - ${CONF_PATH}/nginx/conf.d
+- nginx_conf (это вся конфигурация под nginx начиная с nginx.conf, включая все файлы в conf.d) - ${CONF_PATH}/nginx/conf.d
 - nginx_dockerfile - ${CONF_PATH}/nginx/Dockerfile
 - node_dockerfile - ${CONF_PATH}/node/Dockerfile
+- app_entrypoint - ${CONF_PATH}/bin/app_entrypoint.sh
 
 Так же добавляются необходимые volumes в сервисы docker-compose.yml
 
@@ -183,7 +184,7 @@ docky composer require monolog/monolog
 
 ## Xdebug
 
-По умолчанию установлен.
+По умолчанию установлен и включен.
 
 xdebug.ini публикуется командой:
 
@@ -192,6 +193,22 @@ docky publish --file xdebug.ini
 ```
 
 файл будет помещен в - ``` ${CONF_PATH}/app/php-{PHP_VERSION}/xdebug.ini ```
+
+Отключить xdebug можно через переменную окружения ```XDEBUG_DISABLED``` (добавлена в версии) в файле docker-compose.yml в блоке environment сервиса `app`, установив ее в значение 1 или true
+
+```yaml
+    app:
+        environment:
+            XDEBUG_DISABLED: 1
+```
+
+Достаточно перезапустить контейнеры.
+
+В редких случаях, если вы уже пользовались docky до этого и у вас не отключился xdebug, то выполните команду:
+
+```bash
+docky build
+```
 
 ## Node и npm, npx
 
