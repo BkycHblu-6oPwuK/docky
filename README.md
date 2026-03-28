@@ -6,6 +6,8 @@
 - Под Bitrix вместе с nuxt смотрите в [bitrix.md](docs/bitrix_nuxt.md)
 - Под Laravel смотрите в [laravel.md](docs/laravel.md)
 - Под Symfony смотрите в [symfony.md](docs/symfony.md)
+- Под Yii2 смотрите в [yii2.md](docs/yii2.md)
+- Под Yii3 смотрите в [yii3.md](docs/yii3.md)
 - Под ванильный php смотрите в [vanilla.md](docs/vanilla.md)
 
 Расширение для VS Code для запуска/остановки, мониторинга контейнеров (форк расширения Container Tools - https://github.com/microsoft/vscode-containers) - https://github.com/BkycHblu-6oPwuK/vscode-containers-docky?tab=readme-ov-file
@@ -100,15 +102,15 @@ docky publish --dockerfile app|nginx|node
 
 Публикация происходит в директорию ```${CONF_PATH}```
 - php.ini|xdebug.ini|app-dockerfile - ${CONF_PATH}/app/php-${PHP_VERSION}/*
-- cron_tasks - ${CONF_PATH}/app/cron
-- symlinks - ${CONF_PATH}/app/symlinks
-- mysql_conf - ${CONF_PATH}/mysql/my.cnf для сервисов mysql и mariadb
-- postgres_conf - ${CONF_PATH}/postgres/postgres.conf
-- supervisord_conf - ${CONF_PATH}/app/supervisord.conf
+- cron_tasks - ${CONF_PATH}/app/cron (задания для cron для пользователя сайта - docky, для root пользователя - root)
+- symlinks - ${CONF_PATH}/app/symlinks (симлинки внутри контейнера, формируйте пути относительно структуры контейнера)
+- mysql_conf - ${CONF_PATH}/mysql/my.cnf для сервисов mysql и mariadb (конфигурация для mysql и mariadb)
+- postgres_conf - ${CONF_PATH}/postgres/postgres.conf (конфигурация базы данных postgres)
+- supervisord_conf - ${CONF_PATH}/app/supervisord.conf (файл конфигурации для supervisord, который запускается в контейнере app и в нем можно настроить запуск любых своих процессов при запуске контейнера)
 - nginx_conf (это вся конфигурация под nginx начиная с nginx.conf, включая все файлы в conf.d) - ${CONF_PATH}/nginx/conf.d
 - nginx_dockerfile - ${CONF_PATH}/nginx/Dockerfile
 - node_dockerfile - ${CONF_PATH}/node/Dockerfile
-- app_entrypoint - ${CONF_PATH}/bin/app_entrypoint.sh
+- app_entrypoint - ${CONF_PATH}/bin/app_entrypoint.sh (скрипт запускающийся при запуске контейнера app, в него можно добавить свои команды для выполнения при запуске контейнера)
 
 Так же добавляются необходимые volumes в сервисы docker-compose.yml
 
@@ -194,7 +196,7 @@ docky publish --file xdebug.ini
 
 файл будет помещен в - ``` ${CONF_PATH}/app/php-{PHP_VERSION}/xdebug.ini ```
 
-Отключить xdebug можно через переменную окружения ```XDEBUG_DISABLED``` (добавлена в версии) в файле docker-compose.yml в блоке environment сервиса `app`, установив ее в значение 1 или true
+Отключить xdebug можно через переменную окружения ```XDEBUG_DISABLED``` в файле docker-compose.yml в блоке environment сервиса `app`, установив ее в значение 1 или true
 
 ```yaml
     app:

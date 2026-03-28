@@ -1,4 +1,4 @@
-# Конфигурация под symfony
+# Конфигурация под yii2
 
 nginx + php (8.2, 8.3, 8.4, 8.5) + mysql|mariadb|postgres|sqlite
 а так же redis|memcached
@@ -7,23 +7,30 @@ nginx + php (8.2, 8.3, 8.4, 8.5) + mysql|mariadb|postgres|sqlite
 
 Шаги:
 
-0. Выбор фреймворка - symfony
-1. Выбрать версию php
-2. Выберите базу данных - mysql|mariadb|postgres|sqlite
-3. Выбрать версию базы данных
-4. Выберите сервер для кеширования - redis|memcached|Пропуск
-5. Установка symfony
+0. Выбор фреймворка - yii2
+1. Выберите шаблон - advanced|basic
+2. Выбрать версию php
+3. Выберите базу данных - mysql|mariadb|postgres|sqlite
+4. Выбрать версию базы данных
+5. Выберите сервер для кеширования - redis|memcached|Пропуск
+6. Установка yii2
 
 После этого в директории где выполнялась команда появится docker-compose.yml файл с настроенными сервисами.
 
-В директории site уже будет развернут symfony проект
+В директории site уже будет развернут yii2 проект
 
-## bin/console
+Если выбирали шаблон advanced, то не забудте выполнить запуск скрипта init
+
+```bash
+docky php /var/www/init
+```
+
+## console
 
 запускайте команды с помощью
 
 ```bash
-docky symfony {arg}
+docky yii {arg}
 ```
 
 ## Cron

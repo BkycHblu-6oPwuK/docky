@@ -166,26 +166,6 @@ func PublishFile(file string) error {
 	}
 }
 
-// func PublishExample(framework framework.Framework) error {
-//     examplesCachePath := config.GetExamplesCachePath()
-//     siteDirPath := config.GetSiteDirPath()
-//     if exists, _ := filetools.FileIsExists(examplesCachePath); !exists {
-//         return fmt.Errorf("директория с примерами не найдена: %s", examplesCachePath)
-//     }
-
-//     frameworkExamplesPath := filepath.Join(examplesCachePath, framework.String())
-//     if exists, _ := filetools.FileIsExists(frameworkExamplesPath); !exists {
-//         return fmt.Errorf("примеры для фреймворка %s не найдены в %s", framework, frameworkExamplesPath)
-//     }
-
-//     err := filetools.CopyDir(frameworkExamplesPath, siteDirPath)
-//     if err != nil {
-//         return fmt.Errorf("ошибка копирования примеров: %w", err)
-//     }
-
-//     return nil
-// }
-
 func PublishService(service string) error {
 	switch service {
 	case composefiletools.Node:
