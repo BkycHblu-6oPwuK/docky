@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/BkycHblu-6oPwuK/docky/v2/internal/config"
@@ -14,8 +15,8 @@ import (
 
 var shareCmd = &cobra.Command{
 	Use:                "share",
-	Short:              "Туннелирование локального сайта",
-	Long:               "Туннелирование происходит с помощью Expose и вы можете прокидывать все флаги что принимает Expose",
+	Short:              "Туннелирование через Cloudpub",
+	Long:               "Создаёт публичный URL через Cloudpub",
 	DisableFlagParsing: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		globaltools.ValidateWorkDir()
@@ -31,43 +32,30 @@ func init() {
 }
 
 func share(args []string) error {
-	hasFlag := func(name string) bool {
-		prefix := "--" + name
-		for _, a := range args {
-			if a == prefix || strings.HasPrefix(a, prefix+"=") {
-				return true
-			}
-		}
-		return false
-	}
+    token := "Uy2ZPTdV_Gu_2yrHh_vmNZ7meW3TV5YY0x_bxGW7rJo"
+    networkName := getDockyNetwork()
 
-	cmdArgs := []string{
-		"run", "--init", "--rm",
-		"-p", "4040:4040",
-		"-t",
-		"beyondcodegmbh/expose-server:latest",
-		"share",
-	}
+    cmdArgs := []string{
+        "run", "--rm",
+        "--network", networkName,
+        "-e", "TOKEN=" + token,
+        "cloudpub/cloudpub:latest",
+        "publish", "http", "nginx:80",
+    }
 
-	if !hasFlag("server-host") {
-		cmdArgs = append(cmdArgs, "--server-host=laravel-sail.site")
-	}
+    cmdArgs = append(cmdArgs, args...)
 
-	if !hasFlag("server-port") {
-		cmdArgs = append(cmdArgs, "--server-port=8080")
-	}
+    cmd := exec.Command("docker", cmdArgs...)
+    cmd.Dir = config.GetWorkDirPath()
+    cmd.Stdout = os.Stdout
+    cmd.Stderr = os.Stderr
+    cmd.Stdin = os.Stdin
 
-	if !hasFlag("domain") {
-		cmdArgs = append(cmdArgs, "--domain=laravel-sail.site")
-	}
+    return cmd.Run()
+}
 
-	cmdArgs = append(cmdArgs, args...)
-
-	cmd := exec.Command("docker", cmdArgs...)
-	cmd.Dir = config.GetWorkDirPath()
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-
-	return cmd.Run()
+func getDockyNetwork() string {
+    workDir := config.GetWorkDirPath()
+    projectName := strings.ToLower(filepath.Base(workDir))
+    return projectName + "_docky"
 }

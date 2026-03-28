@@ -260,25 +260,15 @@ docky pm2 {arg}
 
 ## Туннелирование локального сайта
 
-Для туннелирования используется Expose (https://github.com/beyondcode/expose) и для того чтобы поделиться вашим локальным сайтом выполните команду:
+Для туннелирования используется Cloudpub (https://cloudpub.ru/) и для того чтобы поделиться вашим локальным сайтом выполните команду:
 
 ```bash
 docky share
 ```
 
-Сайт будет доступен 1 час, после этого команду можно выполнить заново.
+Документация cloudpub - https://cloudpub.ru/docs
 
-привер флагов expose для проброса через команду docky share:
-
-- `--auth`
-- `--server`
-- `--subdomain`
-- `--domain`
-- `--server-host`
-- `--server-port`
-- ...
-
-Документация expose - https://expose.dev/docs/introduction
+https://hub.docker.com/r/cloudpub/cloudpub
 
 ## Символические ссылки
 
