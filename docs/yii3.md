@@ -46,6 +46,22 @@ docky publish --file cron_tasks
 - `${CONF_PATH}/app/cron/docky` - для пользователя сайта
 - `${CONF_PATH}/app/cron/root` - для root пользователя
 
+Полностью отключить cron в контейнере можно установив переменную окружения ```CRON_DISABLED=true|1``` в docker-compose.yml и перезапустить контейнеры.
+
+```yaml
+services:
+  app:
+    environment:
+      - CRON_DISABLED=true|1
+```
+
+
+В редких случаях, если вы уже пользовались docky до этого и у вас не отключился cron, то выполните команду:
+
+```bash
+docky build
+```
+
 ## Почта
 
 msmtp клиент не устанавливается.

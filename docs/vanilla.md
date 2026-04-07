@@ -1,6 +1,6 @@
 # Конфигурация под ванильный php
 
-nginx + php (8.2, 8.3, 8.4, 8.5) + mysql|mariadb|postgres|sqlite + node 23 версии
+nginx + php (8.2, 8.3, 8.4, 8.5) + mysql|mariadb|postgres|sqlite + node 24 версии
 а так же redis|memcached
 
 ## Шаги публикации docker-compose.yml
@@ -12,7 +12,7 @@ nginx + php (8.2, 8.3, 8.4, 8.5) + mysql|mariadb|postgres|sqlite + node 23 ве�
 2. Выберите базу данных - mysql|mariadb|postgres|sqlite
 3. Выбрать версию базы данных
 4. Выберите сервер для кеширования - redis|memcached|Пропуск
-5. Устанавливать ли node.js - Y или N, если установите Y, то будет создан сервис с node js 23 версии
+5. Устанавливать ли node.js - Y или N, если установите Y, то будет создан сервис с node js 24 версии
     1. Если будет устанавливаться node.js, то нужно указать корневую директорию для него, то есть директория содержащая файл package.json. Путь указывается относительно корня сайта - local/js/vite или пустое поле если package.json в корне сайта.
 
 После этого в директории где выполнялась команда появится docker-compose.yml файл с настроенными сервисами.
@@ -44,6 +44,22 @@ docky publish --file cron_tasks
 Запись заданий осуществляйте в:
 - `${CONF_PATH}/app/cron/docky` - для пользователя сайта
 - `${CONF_PATH}/app/cron/root` - для root пользователя
+
+Полностью отключить cron в контейнере можно установив переменную окружения ```CRON_DISABLED=true|1``` в docker-compose.yml и перезапустить контейнеры.
+
+```yaml
+services:
+  app:
+    environment:
+      - CRON_DISABLED=true|1
+```
+
+
+В редких случаях, если вы уже пользовались docky до этого и у вас не отключился cron, то выполните команду:
+
+```bash
+docky build
+```
 
 ## Почта
 

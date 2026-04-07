@@ -1,6 +1,6 @@
 # Конфигурация под laravel
 
-nginx + php (8.2, 8.3, 8.4, 8.5) + mysql|mariadb|postgres|sqlite + node 23 версии
+nginx + php (8.2, 8.3, 8.4, 8.5) + mysql|mariadb|postgres|sqlite + node 24 версии
 а так же redis|memcached
 
 ## Шаги публикации docker-compose.yml

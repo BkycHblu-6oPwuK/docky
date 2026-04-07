@@ -134,3 +134,95 @@ location / {
 ```yml
 command: sh -c "pm2 start /var/www/nuxt/ecosystem.config.cjs --name node-server & tail -f /dev/null"
 ```
+
+## Cron
+
+По умолчанию cron включен и выполняется задание на запуск файла ```/var/www/bitrix/modules/main/tools/cron_events.php```
+
+Если необходимо добавить задания, то сделайте публикацию файлов с заданиями
+
+```bash
+docky publish --file cron_tasks
+```
+
+Запись заданий осуществляйте в:
+- `_conf/app/cron/docky` - для пользователя сайта
+- `_conf/app/cron/root` - для root пользователя
+
+Полностью отключить cron в контейнере можно установив переменную окружения ```CRON_DISABLED=true|1``` в docker-compose.yml и перезапустить контейнеры.
+
+```yaml
+services:
+  app:
+    environment:
+      - CRON_DISABLED=true|1
+```
+
+
+В редких случаях, если вы уже пользовались docky до этого и у вас не отключился cron, то выполните команду:
+
+```bash
+docky build
+```
+
+## Почта
+
+Для тестирования почты используйте сервис mailhog.
+
+Если сервиса нет в docker-compose.yml, то опубликуйте его:
+
+```bash
+docky publish --service mailhog
+```
+
+И настройте smtp отправку почты на этот сервис:
+
+- Сервер - mailhog
+- Порт - 1025
+- Без авторизации
+
+Проверяйте письма на странице - http://localhost:8025
+
+----
+
+Для отправки почты через  ```msmtp```
+
+Вам необходимо настроить файл msmtprc в ``` _docker/app/msmtprc ```, или создайте свой файл и пробросьте его с помощью volumes в docker-compose.yml:
+
+```yaml
+- ${CONF_PATH}/app/msmtprc:/home/docky/.msmtprc
+```
+
+Привер такого файла конфигурации:
+
+```
+defaults
+tls on
+auth on
+keepbcc on
+tls_certcheck off
+logfile /home/docky/msmtp.log
+
+account yandex
+port 587
+host smtp.yandex.ru
+user <your-email>@yandex.ru
+password <your-app-password>
+from <your-email>@yandex.ru
+tls_starttls on
+
+account default : yandex
+```
+
+Если почта не отправляется или в проверке системы написано что почта не работает, то проверьте логи ```msmtp``` в контейнере, которые находятся в файле ```/home/docky/msmtp.log```. Вероятнее всего произошла ошибка авторизации или почтовый сервис отклюнил отправку из-за подозрений в спаме.
+
+## Sphinx (поисковая система)
+
+sphinx (версия 2.2.11) является сервисом в docker-compose.yml (добавляется при установке) и собирается на основе Dockerfile из _docker/sphinx/Dockerfile, где так же лежит и файл конфигурации sphinx.conf.
+
+После запуска контейнеров можно подключаться к sphinx:
+
+```
+sphinx:9306 - протокол MySql
+sphinx:9312 - стандартный протокой
+```

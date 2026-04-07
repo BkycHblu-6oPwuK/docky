@@ -9,6 +9,7 @@ const (
 	Symfony    Framework = "symfony"
 	Yii2	   Framework = "yii2"
 	Yii3	   Framework = "yii3"
+	Wordpress  Framework = "wordpress"
 	Vanilla    Framework = "vanilla"
 )
 
@@ -20,6 +21,7 @@ func GetAll() []Framework {
 		Symfony,
 		Yii2,
 		Yii3,
+		Wordpress,
 		Vanilla,
 	}
 }
@@ -47,6 +49,8 @@ func ParseFramework(s string) Framework {
 		return Yii2
 	case Yii3.String():
 		return Yii3
+	case Wordpress.String():
+		return Wordpress
 	case Vanilla.String():
 		return Vanilla
 	default:

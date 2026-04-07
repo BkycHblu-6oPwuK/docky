@@ -15,6 +15,7 @@ type frameworkConfigurator interface {
 
 // defaultConfigurator используется для фреймворков без явной записи в реестре.
 type defaultConfigurator struct{}
+type bitrixConfigurator struct{}
 type laravelConfigurator struct{}
 type vanillaConfigurator struct{}
 type symfonyConfigurator struct{}
@@ -25,6 +26,7 @@ type yii3Configurator struct{}
 // frameworkConfigurators — реестр конфигураторов по фреймворку.
 // Добавление нового фреймворка не требует изменения существующего кода.
 var frameworkConfigurators = map[framework.Framework]frameworkConfigurator{
+	framework.Bitrix:     &bitrixConfigurator{},
 	framework.Laravel:    &laravelConfigurator{},
 	framework.Vanilla:    &vanillaConfigurator{},
 	framework.Symfony:    &symfonyConfigurator{},
@@ -34,6 +36,18 @@ var frameworkConfigurators = map[framework.Framework]frameworkConfigurator{
 }
 
 func (d *defaultConfigurator) configure(cfg *config.YamlConfig) error {
+	cfg.DbType = composefiletools.Mysql
+	if cfg.MysqlVersion == "" {
+		cfg.MysqlVersion = readertools.GetOrChoose(
+			"Выберите версию mysql: ", cfg.MysqlVersion,
+			composefiletools.GetAvailableVersions(composefiletools.Mysql, cfg),
+		)
+	}
+	chooseNode(cfg)
+	return nil
+}
+
+func (d *bitrixConfigurator) configure(cfg *config.YamlConfig) error {
 	cfg.DbType = composefiletools.Mysql
 	if cfg.MysqlVersion == "" {
 		cfg.MysqlVersion = readertools.GetOrChoose(

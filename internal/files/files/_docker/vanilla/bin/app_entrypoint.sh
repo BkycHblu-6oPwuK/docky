@@ -13,4 +13,9 @@ if [ "$XDEBUG_DISABLED" = "1" ] || [ "$XDEBUG_DISABLED" = "true" ]; then
     done
 fi
 
+if [ "$CRON_DISABLED" = "1" ] || [ "$CRON_DISABLED" = "true" ]; then
+    sed -i '/^\[program:cron\]/,/^\[/ s/autostart=true/autostart=false/' \
+        /etc/supervisor/conf.d/supervisord.conf
+fi
+
 exec supervisord -c /etc/supervisor/conf.d/supervisord.conf
