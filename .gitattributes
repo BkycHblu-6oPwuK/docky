@@ -1,2 +1,3 @@
 scripts/* text eol=lf
 internal/files/_docker/bin/* text eol=lf
+Dockerfile linguist-detectable=false
