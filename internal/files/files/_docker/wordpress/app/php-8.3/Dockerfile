@@ -8,7 +8,7 @@ RUN useradd -ms /bin/bash --no-user-group -g $USERGROUP -u $USERGROUP docky
 
 COPY nginx/certs/ /usr/local/share/ca-certificates/
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
     libpq-dev \
     libpng-dev \
@@ -18,9 +18,15 @@ RUN apt-get update && apt-get install -y \
     libwebp-dev \
     libxpm-dev \
     zip \
-    unzip
+    unzip \
+    gcc \
+    make \
+    autoconf \
+    libc-dev \
+    pkg-config \
+    libssl-dev
 
-RUN apt-get install -y \ 
+RUN apt-get update && apt-get install -y --no-install-recommends \
     jpegoptim \
     optipng \
     ghostscript \
@@ -35,9 +41,11 @@ RUN apt-get install -y \
     libmagickwand-dev imagemagick \
     gifsicle \
     git
-    
+
 RUN update-ca-certificates && \
-    pecl install imagick && \
+    pecl channel-update https://pecl.php.net/channel.xml
+
+RUN pecl install imagick && \
     pecl install xdebug && \
     docker-php-ext-enable imagick && \
     docker-php-ext-enable xdebug && \

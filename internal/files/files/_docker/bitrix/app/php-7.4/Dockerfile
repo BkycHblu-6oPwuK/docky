@@ -31,7 +31,7 @@ RUN apt-get update && apt-get install -y --allow-unauthenticated \
     zip \
     unzip
 
-RUN apt-get install -y --allow-unauthenticated \
+RUN apt-get update && apt-get install -y --allow-unauthenticated \
     jpegoptim \
     optipng \
     ghostscript \
@@ -46,9 +46,11 @@ RUN apt-get install -y --allow-unauthenticated \
     libmagickwand-dev imagemagick \
     gifsicle \
     git
-    
+
 RUN update-ca-certificates && \
-    pecl install imagick-3.7.0 && \
+    pecl channel-update https://pecl.php.net/channel.xml
+
+RUN pecl install imagick-3.7.0 && \
     pecl install xdebug-3.1.6 && \
     docker-php-ext-enable imagick && \
     docker-php-ext-enable xdebug && \

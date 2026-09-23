@@ -8,11 +8,12 @@ RUN useradd -ms /bin/bash --no-user-group -g $USERGROUP -u $USERGROUP docky
 
 COPY nginx/certs/ /usr/local/share/ca-certificates/
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
     autoconf \
     pkg-config \
     build-essential \
+    libssl-dev \
     libpng-dev \
     libzip-dev \
     libfreetype6-dev \
@@ -24,9 +25,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     ca-certificates
 
-RUN apt-get install -y libmagickwand-dev imagemagick 
+RUN apt-get update && apt-get install -y --no-install-recommends libmagickwand-dev imagemagick 
 
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     nginx \
     cron \
@@ -43,7 +44,8 @@ RUN apt-get install -y \
     libpq-dev \
     git
 
-RUN update-ca-certificates
+RUN update-ca-certificates && \
+    pecl channel-update https://pecl.php.net/channel.xml
 
 RUN pecl install imagick xdebug && \
     docker-php-ext-enable imagick xdebug
@@ -60,7 +62,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-x
     intl \
     zip
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   libmemcached-dev \
   zlib1g-dev
 RUN pecl install memcached && docker-php-ext-enable memcached
