@@ -75,6 +75,7 @@ func buildAppService(yamlConfig *config.YamlConfig) service.Service {
 		AddDefaultNetwork().
 		AddEnvironment("XDEBUG_TRIGGER", "testTrig").
 		AddEnvironment("PHP_IDE_CONFIG", "serverName=xdebugServer").
+		AddEnvironment("CRON_DISABLED", "1").
 		SetContainerName(App)
 
 	if yamlConfig.DbType != Sqlite {

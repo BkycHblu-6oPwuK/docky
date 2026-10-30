@@ -41,22 +41,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libmagickwand-dev imagemagick \
     gifsicle \
     git
+    
+RUN set -eux; \
+    mkdir -p /tmp/pecl; cd /tmp/pecl; \
+    for pkg in imagick-3.7.0 xdebug-3.2.2 memcache-8.2 igbinary-3.2.14 redis-6.0.2; do \
+        curl -4 -fsSL --connect-timeout 15 --max-time 180 --retry 5 --retry-all-errors --retry-delay 3 -o "/tmp/pecl/$pkg.tgz" "https://pecl.php.net/get/$pkg.tgz"; \
+    done; \
+    pecl install /tmp/pecl/imagick-3.7.0.tgz; \
+    pecl install /tmp/pecl/xdebug-3.2.2.tgz; \
+    pecl install /tmp/pecl/memcache-8.2.tgz; \
+    pecl install /tmp/pecl/igbinary-3.2.14.tgz; \
+    pecl install -D 'enable-redis-igbinary="yes"' /tmp/pecl/redis-6.0.2.tgz; \
+    docker-php-ext-enable imagick xdebug memcache igbinary redis; \
+    rm -rf /tmp/pecl /tmp/pear
 
-RUN update-ca-certificates && \
-    pecl channel-update https://pecl.php.net/channel.xml
-
-RUN pecl install imagick-3.7.0 && \
-    pecl install xdebug-3.2.2 && \
-    docker-php-ext-enable imagick && \
-    docker-php-ext-enable xdebug && \
-    docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm && \
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm && \
     docker-php-ext-install pdo_mysql mysqli bcmath gd zip exif
-
-RUN pecl install memcache-8.2 && docker-php-ext-enable memcache
-
-RUN pecl install igbinary-3.2.14 && \
-    pecl install -D 'enable-redis-igbinary="yes"' redis-6.0.2 && \
-    docker-php-ext-enable igbinary redis
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN curl -sS https://getcomposer.org/installer | php -- \
@@ -71,11 +71,23 @@ RUN chmod 600 /home/docky/.msmtprc
 RUN chown docky:docky /home/docky/.msmtprc
 
 COPY app/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY app/cron /var/spool/cron/crontabs
-RUN echo "" >> /var/spool/cron/crontabs/docky
-RUN chown docky:docky /var/spool/cron/crontabs/docky
-RUN chmod 0600 /var/spool/cron/crontabs/docky /var/spool/cron/crontabs/root
-RUN touch /var/log/cron.log
+
+COPY app/cron/ /tmp/docky-cron/
+RUN set -eux; \
+    mkdir -p /var/spool/cron/crontabs; \
+    for u in docky root; do \
+        if [ -f "/tmp/docky-cron/$u" ]; then \
+            cp "/tmp/docky-cron/$u" "/var/spool/cron/crontabs/$u"; \
+        else \
+            touch "/var/spool/cron/crontabs/$u"; \
+        fi; \
+        sed -i -e 's/\r$//' -e '$a\' "/var/spool/cron/crontabs/$u"; \
+        chown "$u:crontab" "/var/spool/cron/crontabs/$u"; \
+        chmod 0600 "/var/spool/cron/crontabs/$u"; \
+    done; \
+    touch /var/log/cron.log; \
+    rm -rf /tmp/docky-cron
+
 RUN service cron restart
 COPY bin/app_entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh && \

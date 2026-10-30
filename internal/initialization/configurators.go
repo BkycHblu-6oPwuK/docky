@@ -19,7 +19,6 @@ type bitrixConfigurator struct{}
 type laravelConfigurator struct{}
 type vanillaConfigurator struct{}
 type symfonyConfigurator struct{}
-type bitrixNuxtConfigurator struct{}
 type yii2Configurator struct{}
 type yii3Configurator struct{}
 
@@ -30,7 +29,6 @@ var frameworkConfigurators = map[framework.Framework]frameworkConfigurator{
 	framework.Laravel:    &laravelConfigurator{},
 	framework.Vanilla:    &vanillaConfigurator{},
 	framework.Symfony:    &symfonyConfigurator{},
-	framework.BitrixNuxt: &bitrixNuxtConfigurator{},
 	framework.Yii2:       &yii2Configurator{},
 	framework.Yii3:       &yii3Configurator{},
 }
@@ -78,21 +76,6 @@ func (v *vanillaConfigurator) configure(cfg *config.YamlConfig) error {
 
 func (s *symfonyConfigurator) configure(cfg *config.YamlConfig) error {
 	chooseDbAndCache(cfg)
-	return nil
-}
-
-func (b *bitrixNuxtConfigurator) configure(cfg *config.YamlConfig) error {
-	cfg.DbType = composefiletools.Mysql
-	if cfg.MysqlVersion == "" {
-		cfg.MysqlVersion = readertools.GetOrChoose(
-			"Выберите версию mysql: ", cfg.MysqlVersion,
-			composefiletools.GetAvailableVersions(composefiletools.Mysql, cfg),
-		)
-	}
-	cfg.CreateNode = true
-	cfg.NodePath = "/var/www/nuxt"
-	globaltools.InitNode(cfg)
-	cfg.CreateSphinx = readertools.AskYesNo("Добавлять sphinx?")
 	return nil
 }
 

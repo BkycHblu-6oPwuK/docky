@@ -4,7 +4,6 @@ type Framework string
 
 const (
 	Bitrix     Framework = "bitrix"
-	BitrixNuxt Framework = "bitrix_nuxt"
 	Laravel    Framework = "laravel"
 	Symfony    Framework = "symfony"
 	Yii2	   Framework = "yii2"
@@ -16,7 +15,6 @@ const (
 func GetAll() []Framework {
 	return []Framework{
 		Bitrix,
-		BitrixNuxt,
 		Laravel,
 		Symfony,
 		Yii2,
@@ -39,8 +37,6 @@ func ParseFramework(s string) Framework {
 	switch s {
 	case Bitrix.String():
 		return Bitrix
-	case BitrixNuxt.String():
-		return BitrixNuxt
 	case Laravel.String():
 		return Laravel
 	case Symfony.String():
